@@ -35,14 +35,33 @@ export default function RouterProvider({ router, notFound = () => <h1>404 Not Fo
     };
   }, []);
 
-  const isPathMatched = router.some(({ path }) => currentPath === path);
+  const matchRoute = (path, routePath) => {
+    const paramNames = [];
+    const regexPath = routePath.replace(/:([^/]+)/g, (_, paramName) => {
+      paramNames.push(paramName);
+      return '([^/]+)';
+    });
+
+    const match = new RegExp(`^${regexPath}$`).exec(path);
+    if (!match) return null;
+
+    const params = paramNames.reduce((acc, paramName, index) => {
+      acc[paramName] = match[index + 1];
+      return acc;
+    }, {});
+
+    return { path, params };
+  };
+
+  const matchedRoute = router.find(({ path }) => matchRoute(currentPath, path));
 
   return (
     <RouterContext.Provider value={{ currentPath, navigate }}>
-      {router?.map(({ path, render: Component }, i) => {
-        return <Route key={i} path={path} Component={Component} />;
+      {router?.map(({ path, render: component }, i) => {
+        const match = matchRoute(currentPath, path);
+        return match ? <Route key={i} path={path} Component={component} params={match.params} /> : null;
       })}
-      {!isPathMatched && notFound()}
+      {!matchedRoute && notFound()}
     </RouterContext.Provider>
   );
 }
@@ -57,9 +76,8 @@ export function useRouter() {
 
 // // // // // // // // // // // // // // // // // // // //
 
-function Route({ path, Component }) {
-  const { currentPath } = useRouter();
-  return currentPath === path ? <Component /> : null;
+function Route({ Component, params }) {
+  return <Component params={params} />;
 }
 
 // // // // // // // // // // // // // // // // // // // //

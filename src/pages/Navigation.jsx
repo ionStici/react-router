@@ -1,16 +1,23 @@
 import { Link } from '../Router';
-import { router } from '../App';
 
 function Navigation() {
   return (
     <ul>
-      {router.map(({ label, path }) => {
-        return (
-          <li key={label}>
-            <Link to={path}>{label[0].toUpperCase() + label.slice(1)}</Link>
-          </li>
-        );
-      })}
+      <li>
+        <Link to="/">Home</Link>
+      </li>
+      <li>
+        <Link to="/about">About</Link>
+      </li>
+      <li>
+        <Link to="/contact">Contact</Link>
+      </li>
+      <li>
+        <Link to="/contact/25">Contact 25</Link>
+      </li>
+      <li>
+        <Link to="/contact/25/john">Contact John</Link>
+      </li>
       <li>
         <Link to="/error">Error</Link>
       </li>
