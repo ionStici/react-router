@@ -4,34 +4,25 @@ const RouterContext = createContext();
 
 // // // // // // // // // // // // // // // // // // // //
 
-export default function RouterProvider({ router, notFound = () => <h1>404 Not Found</h1>, useHash = false }) {
-  const getCurrentPath = () => (useHash ? window.location.hash.slice(1) || '/' : window.location.pathname);
+export default function RouterProvider({ router, notFound = () => <h1>404 Not Found</h1> }) {
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
-  const [currentPath, setCurrentPath] = useState(getCurrentPath);
-
-  const navigate = useCallback(
-    (to) => {
-      if (useHash) {
-        window.location.hash = to;
-      } else {
-        window.history.pushState({}, '', to);
-        const locationChange = new PopStateEvent('navigate');
-        window.dispatchEvent(locationChange);
-      }
-      setCurrentPath(to);
-    },
-    [useHash]
-  );
+  const navigate = useCallback((to) => {
+    window.history.pushState({}, '', to);
+    const locationChange = new PopStateEvent('navigate');
+    window.dispatchEvent(locationChange);
+    setCurrentPath(to);
+  }, []);
 
   useEffect(() => {
-    const handleNavigate = () => setCurrentPath(getCurrentPath());
+    const handleNavigate = () => setCurrentPath(window.location.pathname);
 
-    window.addEventListener(useHash ? 'hashchange' : 'popstate', handleNavigate);
-    if (!useHash) window.addEventListener('navigate', handleNavigate);
+    window.addEventListener('popstate', handleNavigate);
+    window.addEventListener('navigate', handleNavigate);
 
     return () => {
-      window.removeEventListener(useHash ? 'hashchange' : 'popstate', handleNavigate);
-      if (!useHash) window.removeEventListener('navigate', handleNavigate);
+      window.removeEventListener('popstate', handleNavigate);
+      window.removeEventListener('navigate', handleNavigate);
     };
   }, []);
 
@@ -39,9 +30,9 @@ export default function RouterProvider({ router, notFound = () => <h1>404 Not Fo
 
   return (
     <RouterContext.Provider value={{ currentPath, navigate }}>
-      {router?.map(({ path, render: Component }, i) => {
-        return <Route key={i} path={path} Component={Component} />;
-      })}
+      {router?.map(({ path, render: Component }, i) => (
+        <Route key={i} path={path} Component={Component} />
+      ))}
       {!isPathMatched && notFound()}
     </RouterContext.Provider>
   );
