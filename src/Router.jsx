@@ -1,30 +1,39 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const RouterContext = createContext();
 
 // // // // // // // // // // // // // // // // // // // //
 
-export default function RouterProvider({ router, notFound = () => '' }) {
+export default function RouterProvider({ router, notFound = () => <h1>404 Not Found</h1> }) {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
-  useEffect(() => {
-    const navigate = () => setCurrentPath(window.location.pathname);
+  const navigate = useCallback((to) => {
+    window.history.pushState({}, '', to);
+    const locationChange = new PopStateEvent('navigate');
+    window.dispatchEvent(locationChange);
+    setCurrentPath(to);
+  }, []);
 
-    window.addEventListener('popstate', navigate);
-    window.addEventListener('navigate', navigate);
+  useEffect(() => {
+    const handleNavigate = () => setCurrentPath(window.location.pathname);
+
+    window.addEventListener('popstate', handleNavigate);
+    window.addEventListener('navigate', handleNavigate);
 
     return () => {
-      window.removeEventListener('popstate', navigate);
-      window.removeEventListener('navigate', navigate);
+      window.removeEventListener('popstate', handleNavigate);
+      window.removeEventListener('navigate', handleNavigate);
     };
   }, []);
 
+  const isPathMatched = router.some(({ path }) => currentPath === path);
+
   return (
-    <RouterContext.Provider value={currentPath}>
-      {router?.map(({ path, render }, i) => (
-        <Route key={i} path={path} Component={render} />
+    <RouterContext.Provider value={{ currentPath, navigate }}>
+      {router?.map(({ path, render: Component }, i) => (
+        <Route key={i} path={path} Component={Component} />
       ))}
-      {!router?.some(({ path }) => currentPath === path) && notFound()}
+      {!isPathMatched && notFound()}
     </RouterContext.Provider>
   );
 }
@@ -32,25 +41,31 @@ export default function RouterProvider({ router, notFound = () => '' }) {
 // // // // // // // // // // // // // // // // // // // //
 
 export function useRouter() {
-  return useContext(RouterContext);
+  const context = useContext(RouterContext);
+  if (!context) throw new Error('useRouter must be used within a RouterProvider');
+  return context;
 }
 
 // // // // // // // // // // // // // // // // // // // //
 
 function Route({ path, Component }) {
-  const currentPath = useRouter();
+  const { currentPath } = useRouter();
   return currentPath === path ? <Component /> : null;
 }
 
 // // // // // // // // // // // // // // // // // // // //
 
 export function Link({ children, to }) {
-  const handleClick = (e) => {
-    e.preventDefault();
-    window.history.pushState({}, '', to);
-    const locationChange = new PopStateEvent('navigate');
-    window.dispatchEvent(locationChange);
-  };
+  const { navigate } = useRouter();
+
+  const handleClick = useCallback(
+    (e) => {
+      e.preventDefault();
+      navigate(to);
+    },
+    [navigate, to]
+  );
+
   return (
     <a href={to} onClick={handleClick}>
       {children}
