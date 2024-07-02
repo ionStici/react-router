@@ -13,11 +13,9 @@ function Navigation() {
         <Link to="/contact">Contact</Link>
       </li>
       <li>
-        <Link to="/contact/25">Contact 25</Link>
+        <Link to="/user/john">User</Link>
       </li>
-      <li>
-        <Link to="/contact/25/john">Contact John</Link>
-      </li>
+
       <li>
         <Link to="/error">Error</Link>
       </li>

@@ -4,7 +4,7 @@ const RouterContext = createContext();
 
 // // // // // // // // // // // // // // // // // // // //
 
-export default function RouterProvider({ router, notFound = () => <h1>404 Not Found</h1>, useHash = false }) {
+export default function RouterProvider({ router, useHash = false }) {
   const getCurrentPath = () => (useHash ? window.location.hash.slice(1) || '/' : window.location.pathname);
 
   const [currentPath, setCurrentPath] = useState(getCurrentPath);
@@ -33,9 +33,11 @@ export default function RouterProvider({ router, notFound = () => <h1>404 Not Fo
       window.removeEventListener(useHash ? 'hashchange' : 'popstate', handleNavigate);
       if (!useHash) window.removeEventListener('navigate', handleNavigate);
     };
-  }, []);
+  }, [useHash]);
 
   const matchRoute = (path, routePath) => {
+    if (routePath === '*') return { path, params: {} };
+
     const paramNames = [];
     const regexPath = routePath.replace(/:([^/]+)/g, (_, paramName) => {
       paramNames.push(paramName);
@@ -58,10 +60,11 @@ export default function RouterProvider({ router, notFound = () => <h1>404 Not Fo
   return (
     <RouterContext.Provider value={{ currentPath, navigate }}>
       {router?.map(({ path, render: component }, i) => {
+        if (path === '*') return null;
         const match = matchRoute(currentPath, path);
-        return match ? <Route key={i} path={path} Component={component} params={match.params} /> : null;
+        return match ? <Route key={i} Component={component} params={match.params} /> : null;
       })}
-      {!matchedRoute && notFound()}
+      {matchedRoute.path === '*' && router.find(({ path }) => path === '*')?.render({})}
     </RouterContext.Provider>
   );
 }
