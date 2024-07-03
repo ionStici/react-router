@@ -1,28 +1,17 @@
-import RouterProvider, { useRouter, Link } from './Router';
-
-async function fetchData(location) {
-  const { id } = location.params;
-
-  try {
-    const res = await fetch(`https://jsonplaceholder.typicode.com/todos/${id}`);
-    if (!res.ok) throw new Error('Network response was not ok');
-    return await res.json();
-  } catch (error) {
-    return Promise.reject(error);
-  }
-}
+import RouterProvider, { useRouter, Link } from './Router-v1';
+// import RouterProvider, { useRouter, Link } from './Router-v1-hash';
 
 const router = [
   { path: '/', render: HomePage },
   { path: '/about', render: AboutPage },
   { path: '/team', render: TeamPage },
   { path: '/team/:name', render: TeamPage },
-  { path: '/fetch/:id', render: FetchPage, loadData: (location) => fetchData(location) },
   { path: '*', render: NotFoundPage },
 ];
 
-export default function App() {
+export default function RouterV1() {
   return <RouterProvider router={router} Layout={Layout} />;
+  // return <RouterProvider router={router} Layout={Layout} useHash={true} />;
 }
 
 // // // // // // // // // // // // // // // // // // // //
@@ -63,19 +52,6 @@ function TeamPage({ location }) {
   );
 }
 
-function FetchPage({ data }) {
-  const { loading } = useRouter();
-
-  if (loading) return <h2>Loading...</h2>;
-
-  return (
-    <>
-      <h1>Fetch</h1>
-      {data && <p>{data.title}</p>}
-    </>
-  );
-}
-
 function NotFoundPage() {
   return (
     <>
@@ -93,7 +69,6 @@ function Layout({ children }) {
           <Link to="/">Home</Link>
           <Link to="/about">About</Link>
           <Link to="/team">Team</Link>
-          <Link to="/fetch/25">Fetch</Link>
           <Link to="/error">404 Error</Link>
         </nav>
       </header>
