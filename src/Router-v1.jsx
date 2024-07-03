@@ -4,8 +4,9 @@ const RouterContext = createContext();
 
 // // // // // // // // // // // // // // // // // // // //
 
-export default function RouterProvider({ router, notFound = () => <h1>404 Not Found</h1> }) {
-  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+export default function RouterProvider({ router = [], Layout = ({ children }) => <>{children}</> }) {
+  const getCurrentPath = () => window.location.pathname;
+  const [currentPath, setCurrentPath] = useState(getCurrentPath);
 
   const navigate = useCallback((to) => {
     window.history.pushState({}, '', to);
@@ -15,7 +16,7 @@ export default function RouterProvider({ router, notFound = () => <h1>404 Not Fo
   }, []);
 
   useEffect(() => {
-    const handleNavigate = () => setCurrentPath(window.location.pathname);
+    const handleNavigate = () => setCurrentPath(getCurrentPath());
 
     window.addEventListener('popstate', handleNavigate);
     window.addEventListener('navigate', handleNavigate);
@@ -26,31 +27,34 @@ export default function RouterProvider({ router, notFound = () => <h1>404 Not Fo
     };
   }, []);
 
-  const isPathMatched = router.some(({ path }) => currentPath === path);
+  const matchedRoute = router.find(({ path }) => matchRoute(currentPath, path));
 
   return (
     <RouterContext.Provider value={{ currentPath, navigate }}>
-      {router?.map(({ path, render: Component }, i) => (
-        <Route key={i} path={path} Component={Component} />
-      ))}
-      {!isPathMatched && notFound()}
+      <Layout>
+        {router.map(({ path, render: Component }, i) => {
+          if (path === '*') return null;
+          const match = matchRoute(currentPath, path);
+          return match ? <Route key={i} Component={Component} location={match} /> : null;
+        })}
+        {matchedRoute?.path === '*' && router.find(({ path }) => path === '*')?.render()}
+      </Layout>
     </RouterContext.Provider>
   );
 }
 
 // // // // // // // // // // // // // // // // // // // //
 
-export function useRouter() {
-  const context = useContext(RouterContext);
-  if (!context) throw new Error('useRouter must be used within a RouterProvider');
-  return context;
+function Route({ Component, location }) {
+  return <Component location={location} />;
 }
 
 // // // // // // // // // // // // // // // // // // // //
 
-function Route({ path, Component }) {
-  const { currentPath } = useRouter();
-  return currentPath === path ? <Component /> : null;
+export function useRouter() {
+  const context = useContext(RouterContext);
+  if (!context) throw new Error('useRouter must be used within RouterProvider');
+  return context;
 }
 
 // // // // // // // // // // // // // // // // // // // //
@@ -72,5 +76,28 @@ export function Link({ children, to }) {
     </a>
   );
 }
+
+// // // // // // // // // // // // // // // // // // // //
+
+const matchRoute = (path, routePath) => {
+  if (!routePath) return null;
+  if (routePath === '*') return { path, params: {} };
+
+  const paramNames = [];
+  const regexPath = routePath.replace(/:([^/]+)/g, (_, paramName) => {
+    paramNames.push(paramName);
+    return '([^/]+)';
+  });
+
+  const match = new RegExp(`^${regexPath}$`).exec(path);
+  if (!match) return null;
+
+  const params = paramNames.reduce((acc, paramName, index) => {
+    acc[paramName] = match[index + 1];
+    return acc;
+  }, {});
+
+  return { path, params };
+};
 
 // // // // // // // // // // // // // // // // // // // //

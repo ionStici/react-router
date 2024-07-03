@@ -1,45 +1,78 @@
-import RouterProvider from './Router';
-
-import Layout from './ui/Layout';
-import HomePage from './pages/HomePage';
-import AboutPage from './pages/AboutPage';
-import TeamPage from './pages/TeamPage';
-import FetchPage from './pages/FetchPage';
-import NotFoundPage from './pages/NotFoundPage';
-import Loading from './ui/Loading';
-
-const isAuthenticated = () => true;
-
-async function fetchData(id) {
-  try {
-    const res = await fetch(`https://jsonplaceholder.typicode.com/todos/${id}`);
-
-    if (!res.ok) throw new Error('Failed to load data');
-
-    return res.json();
-  } catch (error) {
-    return Promise.reject(error);
-  }
-}
+import RouterProvider, { useRouter, Link } from './Router-v1';
+// import RouterProvider, { useRouter, Link } from './Router-v1-hash';
 
 const router = [
   { path: '/', render: HomePage },
   { path: '/about', render: AboutPage },
   { path: '/team', render: TeamPage },
-  {
-    path: '/team/:name',
-    render: TeamPage,
-    guard: () => isAuthenticated(),
-  },
-  {
-    path: '/fetch/:id',
-    render: FetchPage,
-    loadData: ({ id }) => fetchData(id),
-    loading: Loading,
-  },
-  { path: '*', render: NotFoundPage }, // must be the last
+  { path: '/team/:name', render: TeamPage },
+  { path: '*', render: NotFoundPage },
 ];
 
 export default function App() {
   return <RouterProvider router={router} Layout={Layout} />;
+  // return <RouterProvider router={router} Layout={Layout} useHash={true} />;
+}
+
+// // // // // // // // // // // // // // // // // // // //
+
+function HomePage() {
+  return (
+    <>
+      <h1>Home</h1>
+      <p>Greetings and Welcome!</p>
+    </>
+  );
+}
+
+function AboutPage() {
+  const { currentPath: path } = useRouter();
+
+  return (
+    <>
+      {path && <h1>{path[1].toUpperCase() + path.slice(2)}</h1>}
+      <p>Satisfy your curiosity</p>
+    </>
+  );
+}
+
+function TeamPage({ location }) {
+  const { navigate } = useRouter();
+  const goTo = (to) => navigate(to);
+
+  const { name } = location.params;
+
+  return (
+    <>
+      <h1>The Team</h1>
+      <p>None of us is as smart as all of us</p>
+      {!name && <button onClick={() => goTo('/team/mike')}>Reveal the employee of the month</button>}
+      {name && <h2>{name} 🎉</h2>}
+    </>
+  );
+}
+
+function NotFoundPage() {
+  return (
+    <>
+      <h1>404 Not Found</h1>
+      <p>No such page exists</p>
+    </>
+  );
+}
+
+function Layout({ children }) {
+  return (
+    <>
+      <header>
+        <nav style={{ display: 'flex', gap: '15px' }}>
+          <Link to="/">Home</Link>
+          <Link to="/about">About</Link>
+          <Link to="/team">Team</Link>
+          <Link to="/error">404 Error</Link>
+        </nav>
+      </header>
+      <main>{children}</main>
+    </>
+  );
 }

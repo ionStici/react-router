@@ -1,7 +1,3 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-
-const RouterContext = createContext();
-
 // // // // // // // // // // // // // // // // // // // //
 
 export default function RouterProvider({ router = [], useHash = false, Layout = ({ children }) => <>{children}</> }) {
@@ -98,56 +94,5 @@ export default function RouterProvider({ router = [], useHash = false, Layout = 
 function Route({ Component, params, data }) {
   return <Component params={params} data={data} />;
 }
-
-// // // // // // // // // // // // // // // // // // // //
-
-export function useRouter() {
-  const context = useContext(RouterContext);
-  if (!context) throw new Error('useRouter must be used within a RouterProvider');
-  return context;
-}
-
-// // // // // // // // // // // // // // // // // // // //
-
-export function Link({ children, to }) {
-  const { navigate } = useRouter();
-
-  const handleClick = useCallback(
-    (e) => {
-      e.preventDefault();
-      navigate(to);
-    },
-    [navigate, to]
-  );
-
-  return (
-    <a href={to} onClick={handleClick}>
-      {children}
-    </a>
-  );
-}
-
-// // // // // // // // // // // // // // // // // // // //
-
-const matchRoute = (path, routePath) => {
-  if (!routePath) return null;
-  if (routePath === '*') return { path, params: {} };
-
-  const paramNames = [];
-  const regexPath = routePath.replace(/:([^/]+)/g, (_, paramName) => {
-    paramNames.push(paramName);
-    return '([^/]+)';
-  });
-
-  const match = new RegExp(`^${regexPath}$`).exec(path);
-  if (!match) return null;
-
-  const params = paramNames.reduce((acc, paramName, index) => {
-    acc[paramName] = match[index + 1];
-    return acc;
-  }, {});
-
-  return { path, params };
-};
 
 // // // // // // // // // // // // // // // // // // // //

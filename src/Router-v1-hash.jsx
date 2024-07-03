@@ -35,41 +35,17 @@ export default function RouterProvider({ router = [], useHash = false, Layout = 
     };
   }, [useHash]);
 
-  const matchRoute = (path, routePath) => {
-    if (routePath === '*') return { path, params: {} };
-
-    const paramNames = [];
-    const regexPath = routePath.replace(/:([^/]+)/g, (_, paramName) => {
-      paramNames.push(paramName);
-      return '([^/]+)';
-    });
-
-    const match = new RegExp(`^${regexPath}$`).exec(path);
-    if (!match) return null;
-
-    const params = paramNames.reduce((acc, paramName, index) => {
-      acc[paramName] = match[index + 1];
-      return acc;
-    }, {});
-
-    return { path, params };
-  };
-
   const matchedRoute = router.find(({ path }) => matchRoute(currentPath, path));
 
   return (
     <RouterContext.Provider value={{ currentPath, navigate }}>
       <Layout>
-        {router.map(({ path, render: Component, guard = true, loadData }, i) => {
-          if (!guard) return null;
-
+        {router.map(({ path, render: Component }, i) => {
           if (path === '*') return null;
-
           const match = matchRoute(currentPath, path);
-
-          return match ? <Route key={i} Component={Component} params={match.params} loadData={loadData} /> : null;
+          return match ? <Route key={i} Component={Component} location={match} /> : null;
         })}
-        {matchedRoute.path === '*' && router.find(({ path }) => path === '*')?.render({})}
+        {matchedRoute?.path === '*' && router.find(({ path }) => path === '*')?.render()}
       </Layout>
     </RouterContext.Provider>
   );
@@ -77,15 +53,15 @@ export default function RouterProvider({ router = [], useHash = false, Layout = 
 
 // // // // // // // // // // // // // // // // // // // //
 
-function Route({ Component, params, data }) {
-  return <Component params={params} data={data} />;
+function Route({ Component, location }) {
+  return <Component location={location} />;
 }
 
 // // // // // // // // // // // // // // // // // // // //
 
 export function useRouter() {
   const context = useContext(RouterContext);
-  if (!context) throw new Error('useRouter must be used within a RouterProvider');
+  if (!context) throw new Error('useRouter must be used within RouterProvider');
   return context;
 }
 
@@ -108,5 +84,28 @@ export function Link({ children, to }) {
     </a>
   );
 }
+
+// // // // // // // // // // // // // // // // // // // //
+
+const matchRoute = (path, routePath) => {
+  if (!routePath) return null;
+  if (routePath === '*') return { path, params: {} };
+
+  const paramNames = [];
+  const regexPath = routePath.replace(/:([^/]+)/g, (_, paramName) => {
+    paramNames.push(paramName);
+    return '([^/]+)';
+  });
+
+  const match = new RegExp(`^${regexPath}$`).exec(path);
+  if (!match) return null;
+
+  const params = paramNames.reduce((acc, paramName, index) => {
+    acc[paramName] = match[index + 1];
+    return acc;
+  }, {});
+
+  return { path, params };
+};
 
 // // // // // // // // // // // // // // // // // // // //
