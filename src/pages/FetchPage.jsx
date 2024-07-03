@@ -2,9 +2,10 @@ import { useRouter } from '../Router';
 import Loading from '../ui/Loading';
 
 function FetchPage({ params, data }) {
-  const { routeData, loading } = useRouter();
-  if (loading) return <Loading />;
+  const { routeData, loading, currentPath } = useRouter();
   const { id } = params;
+
+  if (loading) return <Loading />;
 
   return (
     <div>

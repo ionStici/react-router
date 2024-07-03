@@ -11,37 +11,21 @@ export default function RouterProvider({ router = [], useHash = false, Layout = 
   const [loading, setLoading] = useState(false);
   const [routeData, setRouteData] = useState(null);
 
-  const matchRoute = (path, routePath) => {
-    if (!routePath) return null;
-    if (routePath === '*') return { path, params: {} };
-
-    const paramNames = [];
-    const regexPath = routePath.replace(/:([^/]+)/g, (_, paramName) => {
-      paramNames.push(paramName);
-      return '([^/]+)';
-    });
-
-    const match = new RegExp(`^${regexPath}$`).exec(path);
-    if (!match) return null;
-
-    const params = paramNames.reduce((acc, paramName, index) => {
-      acc[paramName] = match[index + 1];
-      return acc;
-    }, {});
-
-    return { path, params };
-  };
-
   const navigate = useCallback(
     async (to) => {
       const matchedRoute = router.find(({ path }) => matchRoute(to, path));
 
       if (matchedRoute && matchedRoute.loadData) {
         setLoading(true);
-        const data = await matchedRoute.loadData(matchRoute(to, matchedRoute.path).params);
 
-        setRouteData(data);
-        setLoading(false);
+        try {
+          const data = await matchedRoute.loadData(matchRoute(to, matchedRoute.path).params);
+          setRouteData(data);
+        } catch (error) {
+          console.error('Failed to load data:', error);
+        } finally {
+          setLoading(false);
+        }
       } else {
         setRouteData(null);
       }
@@ -65,13 +49,18 @@ export default function RouterProvider({ router = [], useHash = false, Layout = 
 
       if (matchedRoute && matchedRoute.loadData) {
         setLoading(true);
-        const data = await matchedRoute.loadData(matchRoute(path, matchedRoute.path).params);
-
-        setRouteData(data);
-        setLoading(false);
+        try {
+          const data = await matchedRoute.loadData(matchRoute(path, matchedRoute.path).params);
+          setRouteData(data);
+        } catch (error) {
+          console.error('Failed to load data:', error);
+        } finally {
+          setLoading(false);
+        }
       } else {
         setRouteData(null);
       }
+
       setCurrentPath(path);
     };
 
@@ -91,17 +80,15 @@ export default function RouterProvider({ router = [], useHash = false, Layout = 
   return (
     <RouterContext.Provider value={{ currentPath, navigate, loading, routeData }}>
       <Layout>
-        {router.map(({ path, render: Component, guard = true, loadData }, i) => {
-          if (!guard) return null;
+        {router.map(({ path, render: Component, guard = true }, i) => {
+          // if (!guard) return null;
+          if (typeof guard === 'function' && !guard()) return null;
           if (path === '*') return null;
 
           const match = matchRoute(currentPath, path);
-
-          return match ? (
-            <Route key={i} Component={Component} params={match.params} loadData={loadData} data={routeData} />
-          ) : null;
+          return match ? <Route key={i} Component={Component} params={match.params} data={routeData} /> : null;
         })}
-        {matchedRoute.path === '*' && router.find(({ path }) => path === '*')?.render({})}
+        {matchedRoute?.path === '*' && router.find(({ path }) => path === '*')?.render()}
       </Layout>
     </RouterContext.Provider>
   );
@@ -140,5 +127,28 @@ export function Link({ children, to }) {
     </a>
   );
 }
+
+// // // // // // // // // // // // // // // // // // // //
+
+const matchRoute = (path, routePath) => {
+  if (!routePath) return null;
+  if (routePath === '*') return { path, params: {} };
+
+  const paramNames = [];
+  const regexPath = routePath.replace(/:([^/]+)/g, (_, paramName) => {
+    paramNames.push(paramName);
+    return '([^/]+)';
+  });
+
+  const match = new RegExp(`^${regexPath}$`).exec(path);
+  if (!match) return null;
+
+  const params = paramNames.reduce((acc, paramName, index) => {
+    acc[paramName] = match[index + 1];
+    return acc;
+  }, {});
+
+  return { path, params };
+};
 
 // // // // // // // // // // // // // // // // // // // //

@@ -11,9 +11,15 @@ import Loading from './ui/Loading';
 const isAuthenticated = () => true;
 
 async function fetchData(id) {
-  const res = await fetch(`https://jsonplaceholder.typicode.com/todos/${id}`);
-  const data = await res.json();
-  return data;
+  try {
+    const res = await fetch(`https://jsonplaceholder.typicode.com/todos/${id}`);
+
+    if (!res.ok) throw new Error('Failed to load data');
+
+    return res.json();
+  } catch (error) {
+    return Promise.reject(error);
+  }
 }
 
 const router = [
