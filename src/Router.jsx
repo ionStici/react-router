@@ -4,7 +4,7 @@ const RouterContext = createContext();
 
 // // // // // // // // // // // // // // // // // // // //
 
-export default function RouterProvider({ router, useHash = false }) {
+export default function RouterProvider({ router = [], useHash = false }) {
   const getCurrentPath = () => (useHash ? window.location.hash.slice(1) || '/' : window.location.pathname);
 
   const [currentPath, setCurrentPath] = useState(getCurrentPath);
@@ -59,10 +59,10 @@ export default function RouterProvider({ router, useHash = false }) {
 
   return (
     <RouterContext.Provider value={{ currentPath, navigate }}>
-      {router?.map(({ path, render: component }, i) => {
+      {router.map(({ path, render: Component }, i) => {
         if (path === '*') return null;
         const match = matchRoute(currentPath, path);
-        return match ? <Route key={i} Component={component} params={match.params} /> : null;
+        return match ? <Component key={i} params={match.params} /> : null;
       })}
       {matchedRoute.path === '*' && router.find(({ path }) => path === '*')?.render({})}
     </RouterContext.Provider>
@@ -75,12 +75,6 @@ export function useRouter() {
   const context = useContext(RouterContext);
   if (!context) throw new Error('useRouter must be used within a RouterProvider');
   return context;
-}
-
-// // // // // // // // // // // // // // // // // // // //
-
-function Route({ Component, params }) {
-  return <Component params={params} />;
 }
 
 // // // // // // // // // // // // // // // // // // // //
