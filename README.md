@@ -2,14 +2,16 @@
 
 ## RouterProvider
 
-The `RouterProvider` component is the main provider for the routing setup. In takes in the `router` configuration, a `Layout` component that wraps the routes, and an optional `useHash` flag for hash-based routing.
+The `RouterProvider` component handles the routing setup, it takes in:
+
+1. The `router` configuration (array containing object routes).
+2. A `Layout` component that wraps all the routes (optional).
+3. An optional `useHash` flag for hash-based routing.
 
 ```jsx
 import RouterProvider from './Router';
 
-import Layout from 'ui';
-import HomePage from 'pages';
-import AboutPage from 'pages';
+import { Layout, HomePage, AboutPage } from 'pages';
 
 const router = [
   { path: '/', render: HomePage },
@@ -23,23 +25,21 @@ export default function App() {
 
 ## useRouter
 
-The `useRouter` hook allows you to access the router context, which provides the current path, the `navigate` function, and the loading state.
+The `useRouter` hook allows you to access the router context, which provides the current path, and the `navigate` function.
 
 ```jsx
 import { useRouter } from './Router';
 
 function UserProfile() {
-  const { currentPath, navigate, loading } = useRouter();
+  const { currentPath, navigate } = useRouter();
 
-  if (loading) return <div>Loading...</div>;
-
-  return null;
+  // ...
 }
 ```
 
 ## Link
 
-The `Link` component creates navigable links within the application. It uses the navigate function from the router context to change routes without reloading the page.
+The `Link` component creates navigable links within the application. It uses the `navigate` function from the router context to change the routes without reloading the page.
 
 ```jsx
 import { Link } from './Router';
@@ -53,3 +53,21 @@ function Navigation() {
   );
 }
 ```
+
+## Defining Routes
+
+Routes are defined in the `router` array, passed to `RouterProvider`. Each route object should include:
+
+1. `path` : the path for the route.
+2. `render` : the component to render the route.
+
+```jsx
+const router = [
+  { path: '/', render: HomePage },
+  { path: '/about', render: AboutPage },
+  { path: '/team/:name', render: TeamPage },
+  { path: '*', render: NotFoundPage }, // must be the last
+];
+```
+
+An object route that contains a wildcard path can be used for catch-all routes.
