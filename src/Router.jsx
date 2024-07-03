@@ -60,15 +60,25 @@ export default function RouterProvider({ router = [], useHash = false, Layout = 
   return (
     <RouterContext.Provider value={{ currentPath, navigate }}>
       <Layout>
-        {router.map(({ path, render: Component }, i) => {
+        {router.map(({ path, render: Component, guard = true }, i) => {
+          if (!guard) return null;
+
           if (path === '*') return null;
+
           const match = matchRoute(currentPath, path);
-          return match ? <Component key={i} params={match.params} /> : null;
+
+          return match ? <Route key={i} Component={Component} params={match.params} /> : null;
         })}
         {matchedRoute.path === '*' && router.find(({ path }) => path === '*')?.render({})}
       </Layout>
     </RouterContext.Provider>
   );
+}
+
+// // // // // // // // // // // // // // // // // // // //
+
+function Route({ Component, params }) {
+  return <Component params={params} />;
 }
 
 // // // // // // // // // // // // // // // // // // // //

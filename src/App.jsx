@@ -6,11 +6,13 @@ import AboutPage from './pages/AboutPage';
 import TeamPage from './pages/TeamPage';
 import NotFoundPage from './pages/NotFoundPage';
 
+const isAuthenticated = () => true;
+
 const router = [
   { path: '/', render: HomePage },
   { path: '/about', render: AboutPage },
   { path: '/team', render: TeamPage },
-  { path: '/team/:name', render: TeamPage },
+  { path: '/team/:name', render: TeamPage, guard: () => isAuthenticated() },
   { path: '*', render: NotFoundPage }, // must be the last
 ];
 
