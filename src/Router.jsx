@@ -81,7 +81,6 @@ export default function RouterProvider({ router = [], useHash = false, Layout = 
     <RouterContext.Provider value={{ currentPath, navigate, loading, routeData }}>
       <Layout>
         {router.map(({ path, render: Component, guard = true }, i) => {
-          // if (!guard) return null;
           if (typeof guard === 'function' && !guard()) return null;
           if (path === '*') return null;
 
