@@ -2,8 +2,12 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 
 const RouterContext = createContext();
 
+// // // // // // // // // // // // // // // // // // // //
+
 export default function RouterProvider({ router = [], Layout = ({ children }) => <>{children}</> }) {
-  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  const getCurrentPath = () => window.location.pathname;
+
+  const [currentPath, setCurrentPath] = useState(getCurrentPath);
 
   const navigate = useCallback((to) => {
     window.history.pushState({}, '', to);
@@ -13,7 +17,7 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
   }, []);
 
   useEffect(() => {
-    const handleNavigate = () => setCurrentPath(window.location.pathname);
+    const handleNavigate = () => setCurrentPath(getCurrentPath());
 
     window.addEventListener('popstate', handleNavigate);
     window.addEventListener('navigate', handleNavigate);
@@ -29,8 +33,9 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
   return (
     <RouterContext.Provider value={{ currentPath, navigate }}>
       <Layout>
-        {router.map(({ path, render: Component }, i) => {
-          return currentPath === path ? <Component key={i} /> : null;
+        {router.map(({ path: routePath, render: Component }, i) => {
+          const match = matchRoute(currentPath, routePath);
+          return match ? <Component key={i} location={match} /> : null;
         })}
         {is404 && router.find(({ path }) => path === '*')?.render()}
       </Layout>
@@ -38,11 +43,37 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
   );
 }
 
+// // // // // // // // // // // // // // // // // // // //
+
+const matchRoute = (currentPath, routePath) => {
+  if (!currentPath || !routePath || routePath == '*') return null;
+
+  const paramNames = [];
+  const regexPath = routePath.replace(/:([^/]+)/g, (_, paramName) => {
+    paramNames.push(paramName);
+    return '([^/]+)';
+  });
+
+  const match = new RegExp(`^${regexPath}$`).exec(currentPath);
+  if (!match) return null;
+
+  const params = paramNames.reduce((acc, paramName, index) => {
+    acc[paramName] = match[index + 1];
+    return acc;
+  }, {});
+
+  return { currentPath, params };
+};
+
+// // // // // // // // // // // // // // // // // // // //
+
 export function useRouter() {
   const context = useContext(RouterContext);
   if (!context) throw new Error('useRouter must be used within RouterProvider');
   return context;
 }
+
+// // // // // // // // // // // // // // // // // // // //
 
 export function Link({ children, to }) {
   const { navigate } = useRouter();
@@ -61,3 +92,5 @@ export function Link({ children, to }) {
     </a>
   );
 }
+
+// // // // // // // // // // // // // // // // // // // //
