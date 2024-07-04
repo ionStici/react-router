@@ -28,7 +28,7 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
     };
   }, []);
 
-  const is404 = !router.some(({ path }) => currentPath === path);
+  const matchedRoute = router.find(({ path }) => matchRoute(currentPath, path));
 
   return (
     <RouterContext.Provider value={{ currentPath, navigate }}>
@@ -37,7 +37,7 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
           const match = matchRoute(currentPath, routePath);
           return match ? <Component key={i} location={match} /> : null;
         })}
-        {is404 && router.find(({ path }) => path === '*')?.render()}
+        {matchedRoute?.path === '*' && router.find(({ path }) => path === '*')?.render()}
       </Layout>
     </RouterContext.Provider>
   );

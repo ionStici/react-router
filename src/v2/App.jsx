@@ -5,10 +5,10 @@ const router = [
   { path: '/about', render: AboutPage },
   { path: '/team', render: TeamPage },
   { path: '/team/:name', render: TeamPage },
-  { path: '*', render: NotFoundPage },
+  { path: '*', render: NotFoundPage }, // must be the last
 ];
 
-export function CodeExample() {
+export function App() {
   return <RouterProvider router={router} Layout={Layout} />;
 }
 

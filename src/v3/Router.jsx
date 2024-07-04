@@ -19,14 +19,9 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
       if (matchedRoute && matchedRoute.loadData) {
         setLoading(true);
 
-        try {
-          const data = await matchedRoute.loadData(matchRoute(to, matchedRoute.path));
-          setRouteData(data);
-        } catch (error) {
-          console.error('Failed to load data:', error);
-        } finally {
-          setLoading(false);
-        }
+        const data = await matchedRoute.loadData(matchRoute(to, matchedRoute.path));
+        setRouteData(data);
+        setLoading(false);
       } else {
         setRouteData(null);
       }
@@ -46,14 +41,10 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
 
       if (matchedRoute && matchedRoute.loadData) {
         setLoading(true);
-        try {
-          const data = await matchedRoute.loadData(matchRoute(path, matchedRoute.path));
-          setRouteData(data);
-        } catch (error) {
-          console.error('Failed to load data:', error);
-        } finally {
-          setLoading(false);
-        }
+
+        const data = await matchedRoute.loadData(matchRoute(path, matchedRoute.path));
+        setRouteData(data);
+        setLoading(false);
       } else {
         setRouteData(null);
       }
@@ -77,10 +68,10 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
   return (
     <RouterContext.Provider value={{ currentPath, navigate, loading, routeData }}>
       <Layout>
-        {router.map(({ path, render: Component }, i) => {
-          if (path === '*') return null;
-          const match = matchRoute(currentPath, path);
-          return match ? <Route key={i} Component={Component} location={match} data={routeData} /> : null;
+        {router.map(({ path: routePath, render: Component }, i) => {
+          if (routePath === '*') return null;
+          const match = matchRoute(currentPath, routePath);
+          return match ? <Component key={i} location={match} data={routeData} /> : null;
         })}
         {matchedRoute?.path === '*' && router.find(({ path }) => path === '*')?.render()}
       </Layout>
@@ -93,9 +84,26 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
 
 // // // // // // // // // // // // // // // // // // // //
 
-function Route({ Component, location, data }) {
-  return <Component location={location} data={data} />;
-}
+const matchRoute = (currentPath, routePath) => {
+  if (!currentPath || !routePath) return null;
+  if (routePath === '*') return { currentPath, params: {} };
+
+  const paramNames = [];
+  const regexPath = routePath.replace(/:([^/]+)/g, (_, paramName) => {
+    paramNames.push(paramName);
+    return '([^/]+)';
+  });
+
+  const match = new RegExp(`^${regexPath}$`).exec(currentPath);
+  if (!match) return null;
+
+  const params = paramNames.reduce((acc, paramName, index) => {
+    acc[paramName] = match[index + 1];
+    return acc;
+  }, {});
+
+  return { currentPath, params };
+};
 
 // // // // // // // // // // // // // // // // // // // //
 
@@ -124,28 +132,5 @@ export function Link({ children, to }) {
     </a>
   );
 }
-
-// // // // // // // // // // // // // // // // // // // //
-
-const matchRoute = (path, routePath) => {
-  if (!routePath) return null;
-  if (routePath === '*') return { path, params: {} };
-
-  const paramNames = [];
-  const regexPath = routePath.replace(/:([^/]+)/g, (_, paramName) => {
-    paramNames.push(paramName);
-    return '([^/]+)';
-  });
-
-  const match = new RegExp(`^${regexPath}$`).exec(path);
-  if (!match) return null;
-
-  const params = paramNames.reduce((acc, paramName, index) => {
-    acc[paramName] = match[index + 1];
-    return acc;
-  }, {});
-
-  return { path, params };
-};
 
 // // // // // // // // // // // // // // // // // // // //
