@@ -1,32 +1,14 @@
 import RouterProvider, { useRouter, Link } from './Router';
 
-async function fetchData(location) {
-  const { id } = location.params;
-  const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${id}`);
-  return await response.json();
-}
-
 const router = [
   { path: '/', render: HomePage },
-  { path: '/fetch/:id', render: FetchPage, loadData: (location) => fetchData(location) },
+  { path: '/about', render: AboutPage },
+  { path: '/search', render: SearchPage },
+  { path: '*', render: NotFoundPage },
 ];
 
 export function App() {
   return <RouterProvider router={router} Layout={Layout} />;
-}
-
-function FetchPage({ data }) {
-  const { loading, routeData } = useRouter();
-
-  if (loading) return <h2>Loading...</h2>;
-
-  return (
-    <div>
-      <h1>Fetch</h1>
-      {data && <p>{data.title}</p>}
-      {routeData && <p>{routeData.id}</p>}
-    </div>
-  );
 }
 
 // // // // // // // // // // // // // // // // // // // //
@@ -40,15 +22,51 @@ function HomePage() {
   );
 }
 
-function Layout({ children }) {
-  const id = Math.ceil(Math.random() * 200);
+function AboutPage() {
+  return (
+    <>
+      <h1>About</h1>
+      <p>Satisfy your curiosity</p>
+    </>
+  );
+}
 
+function SearchPage({ location }) {
+  const { searchParams } = location;
+
+  const filter = searchParams.get('filter');
+  const sortBy = searchParams.get('sortBy');
+
+  return (
+    <>
+      <h1>Search</h1>
+      <p>What are you looking for?</p>
+      {filter && <p>{filter}</p>}
+      {sortBy && <p>{sortBy}</p>}
+    </>
+  );
+}
+
+function NotFoundPage() {
+  return (
+    <>
+      <h1>404 Not Found</h1>
+      <p>No such page exists</p>
+    </>
+  );
+}
+
+function Layout({ children }) {
   return (
     <>
       <header>
         <nav style={{ display: 'flex', gap: '15px' }}>
           <Link to="/">Home</Link>
-          <Link to={`/fetch/${id}`}>Fetch</Link>
+          <Link to="/about">About</Link>
+          <Link to="/search">Search</Link>
+          <Link to="/search?filter=price">Search: filter</Link>
+          <Link to="/search?filter=price&sortBy=asc">Search: filter & sortBy</Link>
+          <Link to="/error">404 Error</Link>
         </nav>
       </header>
       <main>{children}</main>

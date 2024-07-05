@@ -5,7 +5,7 @@ const router = [
   { path: '/about', render: AboutPage },
   { path: '/team', render: TeamPage },
   { path: '/team/:name', render: TeamPage },
-  { path: '*', render: NotFoundPage }, // must be the last
+  { path: '*', render: NotFoundPage },
 ];
 
 export function App() {

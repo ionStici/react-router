@@ -6,7 +6,6 @@ v2
 
 - Dynamic Routes
 - Backward compatible to v1
-- The catch-all route must be the last in the `router` array to work properly
 
 ## Dynamic Routes
 

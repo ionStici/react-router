@@ -5,54 +5,19 @@ const RouterContext = createContext();
 // // // // // // // // // // // // // // // // // // // //
 
 export default function RouterProvider({ router = [], Layout = ({ children }) => <>{children}</> }) {
-  const getCurrentPath = () => window.location.pathname;
+  const getCurrentPath = () => window.location.pathname + window.location.search;
 
   const [currentPath, setCurrentPath] = useState(getCurrentPath);
 
-  const [loading, setLoading] = useState(false);
-  const [routeData, setRouteData] = useState(null);
-
-  const navigate = useCallback(
-    async (to) => {
-      const matchedRoute = router.find(({ path }) => matchRoute(to, path));
-
-      if (matchedRoute && matchedRoute.loadData) {
-        setLoading(true);
-
-        const data = await matchedRoute.loadData(matchRoute(to, matchedRoute.path));
-        setRouteData(data);
-        setLoading(false);
-      } else {
-        setRouteData(null);
-      }
-
-      window.history.pushState({}, '', to);
-      const locationChange = new PopStateEvent('navigate');
-      window.dispatchEvent(locationChange);
-      setCurrentPath(to);
-    },
-    [router]
-  );
+  const navigate = useCallback((to) => {
+    window.history.pushState({}, '', to);
+    const locationChange = new PopStateEvent('navigate');
+    window.dispatchEvent(locationChange);
+    setCurrentPath(to);
+  }, []);
 
   useEffect(() => {
-    const handleNavigate = async () => {
-      const path = getCurrentPath();
-      const matchedRoute = router.find(({ path: routePath }) => matchRoute(path, routePath));
-
-      if (matchedRoute && matchedRoute.loadData) {
-        setLoading(true);
-
-        const data = await matchedRoute.loadData(matchRoute(path, matchedRoute.path));
-        setRouteData(data);
-        setLoading(false);
-      } else {
-        setRouteData(null);
-      }
-
-      setCurrentPath(path);
-    };
-
-    handleNavigate();
+    const handleNavigate = () => setCurrentPath(getCurrentPath());
 
     window.addEventListener('popstate', handleNavigate);
     window.addEventListener('navigate', handleNavigate);
@@ -61,32 +26,29 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
       window.removeEventListener('popstate', handleNavigate);
       window.removeEventListener('navigate', handleNavigate);
     };
-  }, [router]);
+  }, []);
 
   const matchedRoute = router.find(({ path }) => matchRoute(currentPath, path));
 
   return (
-    <RouterContext.Provider value={{ currentPath, navigate, loading, routeData }}>
+    <RouterContext.Provider value={{ currentPath, navigate }}>
       <Layout>
         {router.map(({ path: routePath, render: Component }, i) => {
-          if (routePath === '*') return null;
           const match = matchRoute(currentPath, routePath);
-          return match ? <Component key={i} location={match} data={routeData} /> : null;
+          return match ? <Component key={i} location={match} /> : null;
         })}
-        {matchedRoute?.path === '*' && router.find(({ path }) => path === '*')?.render()}
+        {!matchedRoute && router.find(({ path }) => path === '*')?.render()}
       </Layout>
     </RouterContext.Provider>
   );
 }
 
-// {router.map(({ path, render: Component, guard = true }, i) => {
-// if (typeof guard === 'function' && !guard()) return null;
-
 // // // // // // // // // // // // // // // // // // // //
 
 const matchRoute = (currentPath, routePath) => {
-  if (!currentPath || !routePath) return null;
-  if (routePath === '*') return { currentPath, params: {} };
+  if (!currentPath || !routePath || routePath === '*') return null;
+
+  const [pathname, search] = currentPath.split('?');
 
   const paramNames = [];
   const regexPath = routePath.replace(/:([^/]+)/g, (_, paramName) => {
@@ -94,7 +56,7 @@ const matchRoute = (currentPath, routePath) => {
     return '([^/]+)';
   });
 
-  const match = new RegExp(`^${regexPath}$`).exec(currentPath);
+  const match = new RegExp(`^${regexPath}$`).exec(pathname);
   if (!match) return null;
 
   const params = paramNames.reduce((acc, paramName, index) => {
@@ -102,7 +64,9 @@ const matchRoute = (currentPath, routePath) => {
     return acc;
   }, {});
 
-  return { currentPath, params };
+  const searchParams = new URLSearchParams(search || '');
+
+  return { currentPath, params, searchParams };
 };
 
 // // // // // // // // // // // // // // // // // // // //
