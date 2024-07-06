@@ -6,7 +6,6 @@ const RouterContext = createContext();
 
 export default function RouterProvider({ router = [], Layout = ({ children }) => <>{children}</> }) {
   const getCurrentPath = () => window.location.pathname;
-
   const [currentPath, setCurrentPath] = useState(getCurrentPath);
 
   const navigate = useCallback((to) => {
@@ -29,18 +28,25 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
   }, []);
 
   const matchedRoute = router.find(({ path }) => matchRoute(currentPath, path));
+  const NotFoundPage = router.find(({ path }) => path === '*')?.render;
 
   return (
     <RouterContext.Provider value={{ currentPath, navigate }}>
       <Layout>
         {router.map(({ path: routePath, render: Component }, i) => {
           const match = matchRoute(currentPath, routePath);
-          return match ? <Component key={i} location={match} /> : null;
+          return match ? <Route key={i} Component={Component} location={match} /> : null;
         })}
-        {!matchedRoute && router.find(({ path }) => path === '*')?.render()}
+        {!matchedRoute && NotFoundPage && <NotFoundPage />}
       </Layout>
     </RouterContext.Provider>
   );
+}
+
+// // // // // // // // // // // // // // // // // // // //
+
+function Route({ Component, location }) {
+  return <Component location={location} />;
 }
 
 // // // // // // // // // // // // // // // // // // // //
@@ -75,8 +81,10 @@ export function useRouter() {
 
 // // // // // // // // // // // // // // // // // // // //
 
-export function Link({ children, to }) {
-  const { navigate } = useRouter();
+export function Link({ children, to, className, active }) {
+  const { currentPath: path, navigate } = useRouter();
+
+  const classes = `${className ? className : ''} ${path === to && active ? active : ''}`;
 
   const handleClick = useCallback(
     (e) => {
@@ -87,7 +95,7 @@ export function Link({ children, to }) {
   );
 
   return (
-    <a href={to} onClick={handleClick}>
+    <a href={to} onClick={handleClick} className={classes}>
       {children}
     </a>
   );

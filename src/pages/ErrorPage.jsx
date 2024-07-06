@@ -1,4 +1,4 @@
-import { useRouter } from '../router/Router';
+import { useRouter } from '../Router';
 
 function ErrorPage() {
   const { currentPath, navigate } = useRouter();
@@ -8,9 +8,12 @@ function ErrorPage() {
     <div className="errorPage">
       <h1>404 Not Found</h1>
       <p>
-        The requested URL <span>{currentPath}</span> does not exist.
+        The requested url <span>{currentPath}</span> does not exist.
       </p>
-      <button onClick={goHome}>Back to Home</button>
+      <p>
+        No worries, you can always go
+        <button onClick={goHome}>Home</button>
+      </p>
     </div>
   );
 }

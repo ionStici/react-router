@@ -5,7 +5,7 @@ const RouterContext = createContext();
 // // // // // // // // // // // // // // // // // // // //
 
 export default function RouterProvider({ router = [], Layout = ({ children }) => <>{children}</> }) {
-  const getCurrentPath = () => window.location.pathname;
+  const getCurrentPath = () => window.location.pathname + window.location.search;
   const [currentPath, setCurrentPath] = useState(getCurrentPath);
 
   const navigate = useCallback((to) => {
@@ -14,6 +14,21 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
     window.dispatchEvent(locationChange);
     setCurrentPath(to);
   }, []);
+
+  const setSearchParams = useCallback(
+    (params) => {
+      const url = new URL(window.location);
+      Object.keys(params).forEach((key) => {
+        if (params[key] === null || params[key] === undefined) {
+          url.searchParams.delete(key);
+        } else {
+          url.searchParams.set(key, params[key]);
+        }
+      });
+      navigate(url.pathname + url.search);
+    },
+    [navigate]
+  );
 
   useEffect(() => {
     const handleNavigate = () => setCurrentPath(getCurrentPath());
@@ -27,16 +42,17 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
     };
   }, []);
 
-  const is404 = !router.some(({ path }) => currentPath === path);
+  const matchedRoute = router.find(({ path }) => matchRoute(currentPath, path));
   const NotFoundPage = router.find(({ path }) => path === '*')?.render;
 
   return (
-    <RouterContext.Provider value={{ currentPath, navigate }}>
+    <RouterContext.Provider value={{ currentPath, navigate, setSearchParams }}>
       <Layout>
         {router.map(({ path: routePath, render: Component }, i) => {
-          return currentPath === routePath ? <Route key={i} Component={Component} /> : null;
+          const match = matchRoute(currentPath, routePath);
+          return match ? <Route key={i} Component={Component} location={match} /> : null;
         })}
-        {is404 && NotFoundPage && <NotFoundPage />}
+        {!matchedRoute && NotFoundPage && <NotFoundPage />}
       </Layout>
     </RouterContext.Provider>
   );
@@ -44,9 +60,37 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
 
 // // // // // // // // // // // // // // // // // // // //
 
-function Route({ Component }) {
-  return <Component />;
+function Route({ Component, location }) {
+  const { params: dynamicParams, searchParams } = location;
+
+  return <Component location={location} dynamicParams={dynamicParams} searchParams={searchParams} />;
 }
+
+// // // // // // // // // // // // // // // // // // // //
+
+const matchRoute = (currentPath, routePath) => {
+  if (!currentPath || !routePath || routePath === '*') return null;
+
+  const [pathname, search] = currentPath.split('?');
+
+  const paramNames = [];
+  const regexPath = routePath.replace(/:([^/]+)/g, (_, paramName) => {
+    paramNames.push(paramName);
+    return '([^/]+)';
+  });
+
+  const match = new RegExp(`^${regexPath}$`).exec(pathname);
+  if (!match) return null;
+
+  const params = paramNames.reduce((acc, paramName, index) => {
+    acc[paramName] = match[index + 1];
+    return acc;
+  }, {});
+
+  const searchParams = new URLSearchParams(search || '');
+
+  return { currentPath, params, searchParams };
+};
 
 // // // // // // // // // // // // // // // // // // // //
 

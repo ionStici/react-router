@@ -2,9 +2,10 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 
 const RouterContext = createContext();
 
+// // // // // // // // // // // // // // // // // // // //
+
 export default function RouterProvider({ router = [], useHash = false, Layout = ({ children }) => <>{children}</> }) {
   const getCurrentPath = () => (useHash ? window.location.hash.slice(1) || '/' : window.location.pathname);
-
   const [currentPath, setCurrentPath] = useState(getCurrentPath);
 
   const navigate = useCallback(
@@ -34,18 +35,27 @@ export default function RouterProvider({ router = [], useHash = false, Layout = 
   }, [useHash]);
 
   const is404 = !router.some(({ path }) => currentPath === path);
+  const NotFoundPage = router.find(({ path }) => path === '*')?.render;
 
   return (
     <RouterContext.Provider value={{ currentPath, navigate }}>
       <Layout>
-        {router.map(({ path, render: Component }, i) => {
-          return currentPath === path ? <Component key={i} /> : null;
+        {router.map(({ path: routePath, render: Component }, i) => {
+          return currentPath === routePath ? <Route key={i} Component={Component} /> : null;
         })}
-        {is404 && router.find(({ path }) => path === '*')?.render()}
+        {is404 && NotFoundPage && <NotFoundPage />}
       </Layout>
     </RouterContext.Provider>
   );
 }
+
+// // // // // // // // // // // // // // // // // // // //
+
+function Route({ Component }) {
+  return <Component />;
+}
+
+// // // // // // // // // // // // // // // // // // // //
 
 export function useRouter() {
   const context = useContext(RouterContext);
@@ -53,8 +63,12 @@ export function useRouter() {
   return context;
 }
 
-export function Link({ children, to }) {
-  const { navigate } = useRouter();
+// // // // // // // // // // // // // // // // // // // //
+
+export function Link({ children, to, className, active }) {
+  const { currentPath: path, navigate } = useRouter();
+
+  const classes = `${className ? className : ''} ${path === to && active ? active : ''}`;
 
   const handleClick = useCallback(
     (e) => {
@@ -65,8 +79,10 @@ export function Link({ children, to }) {
   );
 
   return (
-    <a href={to} onClick={handleClick}>
+    <a href={to} onClick={handleClick} className={classes}>
       {children}
     </a>
   );
 }
+
+// // // // // // // // // // // // // // // // // // // //

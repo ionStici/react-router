@@ -1,4 +1,4 @@
-import { Link } from '../router/Router';
+import { Link } from '../Router';
 
 function NavBar() {
   return (
@@ -8,6 +8,12 @@ function NavBar() {
       </Link>
       <Link to="/about" className="link" active="active">
         About
+      </Link>
+      <Link to="/dynamic" className="link" active="active">
+        Dynamic
+      </Link>
+      <Link to="/search" className="link" active="active">
+        Search
       </Link>
       <Link to="/error" className="link" active="active">
         Error
