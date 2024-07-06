@@ -58,36 +58,44 @@ function Navigation() {
 
 The `active` prop expects a CSS class that will become available when the current URL path matches the `to` prop.
 
-## useRouter
+## useRouter and Route Props
 
-The `useRouter` hook allows you to access the router context, which provides the current url path, the `navigate` and `setSearchParams` functions.
+The `useRouter` hook allows you to access the router context, which provides the following:
+
+- `currentPath` : the current url path
+- `navigate` : function for imperative navigation
+- `setSearchParams` : function for setting search parameters
+
+Every route component has access to the following props:
+
+- `currentPath` : the current url path
+- `dynamicParams` :
+- `searchParams` :
 
 ```jsx
 import { useRouter } from './Router';
 
-function UserProfile() {
+function UserProfile({ currentPath, dynamicParams, searchParams }) {
   const { currentPath, navigate, setSearchParams } = useRouter();
 
   // ...
 }
 ```
 
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
 ## Dynamic Routes
 
 ## Search Params
-
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
-## Dynamic Routes
 
 Dynamic routes are url segments that are parsed and provided to the matching component.
 
@@ -126,13 +134,3 @@ function Team({ location }) {
   { path: '/team/name', render: TeamPage },
 ];
 ```
-
-## Features
-
-- Static routes
-- Catch-all route for non-existent url paths
-- `Link` element : navigation without reloading the page
-- `currentPath` : access to the current url path
-- `navigate` : function for imperative navigation
-- Dynamic Routes
-- Search Params

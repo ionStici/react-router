@@ -15,21 +15,6 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
     setCurrentPath(to);
   }, []);
 
-  const setSearchParams = useCallback(
-    (params) => {
-      const url = new URL(window.location);
-      Object.keys(params).forEach((key) => {
-        if (params[key] === null || params[key] === undefined) {
-          url.searchParams.delete(key);
-        } else {
-          url.searchParams.set(key, params[key]);
-        }
-      });
-      navigate(url.pathname + url.search);
-    },
-    [navigate]
-  );
-
   useEffect(() => {
     const handleNavigate = () => setCurrentPath(getCurrentPath());
 
@@ -46,11 +31,11 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
   const NotFoundPage = router.find(({ path }) => path === '*')?.render;
 
   return (
-    <RouterContext.Provider value={{ currentPath, navigate, setSearchParams }}>
+    <RouterContext.Provider value={{ currentPath, navigate }}>
       <Layout>
         {router.map(({ path: routePath, render: Component }, i) => {
           const match = matchRoute(currentPath, routePath);
-          return match ? <Route key={i} Component={Component} location={match} /> : null;
+          return match ? <Route key={i} Component={Component} dynamicParams={match.params} /> : null;
         })}
         {!matchedRoute && NotFoundPage && <NotFoundPage />}
       </Layout>
@@ -60,9 +45,8 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
 
 // // // // // // // // // // // // // // // // // // // //
 
-function Route({ Component, location }) {
-  const { currentPath, params: dynamicParams, searchParams } = location;
-  return <Component currentPath={currentPath} dynamicParams={dynamicParams} searchParams={searchParams} />;
+function Route({ Component, dynamicParams }) {
+  return <Component dynamicParams={dynamicParams} />;
 }
 
 // // // // // // // // // // // // // // // // // // // //
@@ -70,7 +54,7 @@ function Route({ Component, location }) {
 const matchRoute = (currentPath, routePath) => {
   if (!currentPath || !routePath || routePath === '*') return null;
 
-  const [pathname, search] = currentPath.split('?');
+  const pathname = currentPath.split('?')[0];
 
   const paramNames = [];
   const regexPath = routePath.replace(/:([^/]+)/g, (_, paramName) => {
@@ -86,9 +70,7 @@ const matchRoute = (currentPath, routePath) => {
     return acc;
   }, {});
 
-  const searchParams = new URLSearchParams(search || '');
-
-  return { currentPath, params, searchParams };
+  return { currentPath, params };
 };
 
 // // // // // // // // // // // // // // // // // // // //
@@ -121,6 +103,31 @@ export function Link({ children, to, className, active }) {
       {children}
     </a>
   );
+}
+
+// // // // // // // // // // // // // // // // // // // //
+
+export function useSearchParams() {
+  const { currentPath, navigate } = useRouter();
+
+  const searchParams = new URLSearchParams(currentPath.split('?')[1] || '');
+
+  const setSearchParams = useCallback(
+    (params) => {
+      const url = new URL(window.location.href);
+      Object.keys(params).forEach((key) => {
+        if (params[key] === null || params[key] === undefined) {
+          url.searchParams.delete(key);
+        } else {
+          url.searchParams.set(key, params[key]);
+        }
+      });
+      navigate(url.pathname + url.search);
+    },
+    [navigate]
+  );
+
+  return [searchParams, setSearchParams];
 }
 
 // // // // // // // // // // // // // // // // // // // //

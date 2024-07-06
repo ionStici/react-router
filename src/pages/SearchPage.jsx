@@ -1,10 +1,10 @@
-import { useRouter } from '../Router';
+import { useSearchParams } from '../Router';
 
 const filters = ['all', 'active', 'inactive'];
 const sortBys = ['name', 'price', 'age'];
 
-function SearchPage({ searchParams }) {
-  const { setSearchParams } = useRouter();
+function SearchPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const updateFilter = (filterValue) => {
     setSearchParams({ filter: filterValue });

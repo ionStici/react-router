@@ -95,8 +95,35 @@ const matchRoute = (currentPath, routePath) => {
 
 export function useRouter() {
   const context = useContext(RouterContext);
-  if (!context) throw new Error('useRouter must be used within RouterProvider');
+  // if (!context) throw new Error('useRouter must be used within RouterProvider');
   return context;
+}
+
+// // // // // // // // // // // // // // // // // // // //
+
+export function useSearchParams() {
+  const { navigate } = useRouter();
+
+  const currentPath = window.location.pathname + window.location.search;
+
+  const setSearchParams = useCallback(
+    (params) => {
+      const url = new URL(window.location);
+      Object.keys(params).forEach((key) => {
+        if (params[key] === null || params[key] === undefined) {
+          url.searchParams.delete(key);
+        } else {
+          url.searchParams.set(key, params[key]);
+        }
+      });
+      navigate(url.pathname + url.search);
+    },
+    [navigate]
+  );
+
+  const searchParams = new URLSearchParams(currentPath.split('?')[1] || '');
+
+  return [searchParams, setSearchParams];
 }
 
 // // // // // // // // // // // // // // // // // // // //
