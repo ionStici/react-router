@@ -61,9 +61,8 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
 // // // // // // // // // // // // // // // // // // // //
 
 function Route({ Component, location }) {
-  const { params: dynamicParams, searchParams } = location;
-
-  return <Component location={location} dynamicParams={dynamicParams} searchParams={searchParams} />;
+  const { currentPath, params: dynamicParams, searchParams } = location;
+  return <Component currentPath={currentPath} dynamicParams={dynamicParams} searchParams={searchParams} />;
 }
 
 // // // // // // // // // // // // // // // // // // // //
@@ -103,7 +102,9 @@ export function useRouter() {
 // // // // // // // // // // // // // // // // // // // //
 
 export function Link({ children, to, className, active }) {
-  const { currentPath: path, navigate } = useRouter();
+  const { currentPath, navigate } = useRouter();
+
+  const path = currentPath.split('?')[0];
 
   const classes = `${className ? className : ''} ${path === to && active ? active : ''}`;
 

@@ -1,16 +1,4 @@
-# Client-Side Routing in React
-
-# Client-Side Router
-
-v1
-
-## Features
-
-- Static routes
-- Catch-all route for non-existent url paths
-- `Link` element : navigation without reloading the page
-- `currentPath` : access to the current url path
-- `navigate` : function for imperative navigation
+# Client-Side Routing
 
 ## RouterProvider
 
@@ -18,7 +6,6 @@ The `RouterProvider` component handles the routing setup, it takes in:
 
 1. The `router` configuration (array containing object routes).
 2. A `Layout` component that wraps all the routes (optional).
-3. An optional `useHash` flag for hash-based routing.
 
 ```jsx
 import RouterProvider from './Router';
@@ -39,7 +26,7 @@ export default function App() {
 
 Routes are defined in the `router` array, passed to `RouterProvider`. Each route object should include:
 
-1. `path` : the path for the route.
+1. `path` : the url path for the route.
 2. `render` : the component to render the route.
 
 ```jsx
@@ -61,32 +48,44 @@ The `Link` component creates navigable links within the application. It uses the
 import { Link } from './Router';
 
 function Navigation() {
-  return <Link to="/about">About</Link>;
+  return (
+    <Link to="/about" className="link" active="active">
+      About
+    </Link>
+  );
 }
 ```
 
+The `active` prop expects a CSS class that will become available when the current URL path matches the `to` prop.
+
 ## useRouter
 
-The `useRouter` hook allows you to access the router context, which provides the current path and the `navigate` function.
+The `useRouter` hook allows you to access the router context, which provides the current url path, the `navigate` and `setSearchParams` functions.
 
 ```jsx
 import { useRouter } from './Router';
 
 function UserProfile() {
-  const { currentPath, navigate } = useRouter();
+  const { currentPath, navigate, setSearchParams } = useRouter();
 
   // ...
 }
 ```
 
-# Client-Side Router
+## Dynamic Routes
 
-v2
+## Search Params
 
-## New Features & Changes
-
-- Dynamic Routes
-- Backward compatible to v1
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
 ## Dynamic Routes
 
@@ -128,11 +127,12 @@ function Team({ location }) {
 ];
 ```
 
-# Client-Side Router
+## Features
 
-v3
-
-## New Features & Changes
-
+- Static routes
+- Catch-all route for non-existent url paths
+- `Link` element : navigation without reloading the page
+- `currentPath` : access to the current url path
+- `navigate` : function for imperative navigation
+- Dynamic Routes
 - Search Params
-- Backward compatible to v2
