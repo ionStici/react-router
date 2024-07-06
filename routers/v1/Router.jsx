@@ -25,14 +25,15 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
   }, []);
 
   const is404 = !router.some(({ path }) => currentPath === path);
+  const NotFound = router.find(({ path }) => path === '*')?.render;
 
   return (
     <RouterContext.Provider value={{ currentPath, navigate }}>
       <Layout>
-        {router.map(({ path, render: Component }, i) => {
-          return currentPath === path ? <Component key={i} /> : null;
+        {router.map(({ path: routePath, render: Component }, i) => {
+          return currentPath === routePath ? <Component key={i} /> : null;
         })}
-        {is404 && router.find(({ path }) => path === '*')?.render()}
+        {is404 && NotFound && <NotFound />}
       </Layout>
     </RouterContext.Provider>
   );
@@ -44,8 +45,8 @@ export function useRouter() {
   return context;
 }
 
-export function Link({ children, to }) {
-  const { navigate } = useRouter();
+export function Link({ children, to, className, active }) {
+  const { currentPath: path, navigate } = useRouter();
 
   const handleClick = useCallback(
     (e) => {
@@ -56,7 +57,7 @@ export function Link({ children, to }) {
   );
 
   return (
-    <a href={to} onClick={handleClick}>
+    <a href={to} onClick={handleClick} className={`${className} ${path === to ? active : ''}`}>
       {children}
     </a>
   );
