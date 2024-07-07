@@ -34,18 +34,12 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
     <RouterContext.Provider value={{ currentPath, navigate }}>
       <Layout>
         {router.map(({ path: routePath, render: Component }, i) => {
-          return currentPath === routePath ? <Route key={i} Component={Component} /> : null;
+          return currentPath === routePath ? <Component key={i} /> : null;
         })}
         {is404 && NotFoundPage && <NotFoundPage />}
       </Layout>
     </RouterContext.Provider>
   );
-}
-
-// // // // // // // // // // // // // // // // // // // //
-
-function Route({ Component }) {
-  return <Component />;
 }
 
 // // // // // // // // // // // // // // // // // // // //

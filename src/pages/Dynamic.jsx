@@ -1,10 +1,11 @@
-import { useRouter } from '../Router';
+import { useNavigate, useParams } from '../router/Hooks';
 
-function DynamicPage({ dynamicParams }) {
-  const { navigate } = useRouter();
+function Dynamic() {
+  const navigate = useNavigate();
+
   const goYes = () => navigate('/dynamic/yes!');
 
-  const { answer } = dynamicParams;
+  const { answer } = useParams();
 
   return (
     <div>
@@ -17,4 +18,4 @@ function DynamicPage({ dynamicParams }) {
   );
 }
 
-export default DynamicPage;
+export default Dynamic;

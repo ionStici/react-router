@@ -1,21 +1,21 @@
-import { Link } from '../Router';
+import { Link } from '../router/Link';
 
 function NavBar() {
   return (
     <nav>
-      <Link to="/" className="link" active="active">
+      <Link to="/" className="link" classActive="active">
         Home
       </Link>
-      <Link to="/about" className="link" active="active">
+      <Link to="/about" className="link" classActive="active">
         About
       </Link>
-      <Link to="/dynamic" className="link" active="active">
+      <Link to="/dynamic" className="link" classActive="active">
         Dynamic
       </Link>
-      <Link to="/search" className="link" active="active">
+      <Link to="/search" className="link" classActive="active">
         Search
       </Link>
-      <Link to="/error" className="link" active="active">
+      <Link to="/error" className="link" classActive="active">
         Error
       </Link>
     </nav>

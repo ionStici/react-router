@@ -1,5 +1,9 @@
 # Client-Side Routing
 
+**Conventional rule:** A page should not fetch data or have side effects.
+
+Clean page components, leave the logic to the /features folder.
+
 ## RouterProvider
 
 The `RouterProvider` component handles the routing setup, it takes in:
@@ -58,25 +62,19 @@ function Navigation() {
 
 The `active` prop expects a CSS class that will become available when the current URL path matches the `to` prop.
 
-## useRouter and Route Props
+## useRouter
 
 The `useRouter` hook allows you to access the router context, which provides the following:
 
 - `currentPath` : the current url path
+- `params` : object that contains the dynamic segments of the current route.
 - `navigate` : function for imperative navigation
-- `setSearchParams` : function for setting search parameters
-
-Every route component has access to the following props:
-
-- `currentPath` : the current url path
-- `dynamicParams` :
-- `searchParams` :
 
 ```jsx
 import { useRouter } from './Router';
 
-function UserProfile({ currentPath, dynamicParams, searchParams }) {
-  const { currentPath, navigate, setSearchParams } = useRouter();
+function UserProfile() {
+  const { currentPath, params, navigate } = useRouter();
 
   // ...
 }

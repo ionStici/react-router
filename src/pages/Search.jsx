@@ -1,9 +1,9 @@
-import { useSearchParams } from '../Router';
+import { useSearchParams } from '../router/Hooks';
 
 const filters = ['all', 'active', 'inactive'];
 const sortBys = ['name', 'price', 'age'];
 
-function SearchPage() {
+function Search() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const updateFilter = (filterValue) => {
@@ -46,4 +46,4 @@ function SearchPage() {
   );
 }
 
-export default SearchPage;
+export default Search;

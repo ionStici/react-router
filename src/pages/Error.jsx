@@ -1,6 +1,6 @@
-import { useRouter } from '../Router';
+import { useRouter } from '../router/RouterProvider';
 
-function ErrorPage() {
+function Error() {
   const { currentPath, navigate } = useRouter();
   const goHome = () => navigate('/');
 
@@ -18,4 +18,4 @@ function ErrorPage() {
   );
 }
 
-export default ErrorPage;
+export default Error;
