@@ -1,9 +1,8 @@
-function Home({ children }) {
+function Home() {
   return (
     <div>
       <h1>Home</h1>
-
-      {children}
+      <p>Greetings and Welcome!</p>
     </div>
   );
 }

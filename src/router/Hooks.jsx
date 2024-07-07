@@ -1,15 +1,30 @@
 import { useCallback } from 'react';
 import { useRouter } from './RouterProvider';
 
-export function useNavigate() {
-  const { navigate } = useRouter();
-  return navigate;
+export function useCurrentPath() {
+  const { currentPath } = useRouter();
+  return currentPath;
 }
 
 export function useParams() {
   const { params } = useRouter();
   return params;
 }
+
+export function useNavigate() {
+  const { navigate } = useRouter();
+  return navigate;
+}
+
+export const useGoBack = () => {
+  const { goBack } = useRouter();
+  return goBack;
+};
+
+export const useGoForward = () => {
+  const { goForward } = useRouter();
+  return goForward;
+};
 
 export function useSearchParams() {
   const { currentPath, navigate } = useRouter();

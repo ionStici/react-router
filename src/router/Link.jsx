@@ -6,7 +6,7 @@ export function Link({ children, to, className, classActive }) {
 
   const path = currentPath.split('?')[0];
 
-  const classes = `${className ? className : ''} ${path === to && classActive ? classActive : ''}`;
+  const classes = `${className || ''} ${path === to && classActive ? classActive : ''}`;
 
   const handleClick = useCallback(
     (e) => {

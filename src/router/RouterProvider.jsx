@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 
 const RouterContext = createContext();
 
-export default function RouterProvider({ router = [], Root = ({ children }) => <>{children}</> }) {
+export default function RouterProvider({ router = [], root: Root = ({ children }) => <>{children}</> }) {
   const getCurrentPath = () => window.location.pathname + window.location.search;
   const [currentPath, setCurrentPath] = useState(getCurrentPath);
 
@@ -39,9 +39,9 @@ export default function RouterProvider({ router = [], Root = ({ children }) => <
   return (
     <RouterContext.Provider value={{ currentPath, params, navigate, goBack, goForward }}>
       <Root>
-        {router.map(({ path: routePath, render: Route, children }) => {
+        {router.map(({ path: routePath, render: Route }) => {
           const match = doesRouteMatch(currentPath, routePath);
-          return match ? <Route key={routePath}>{children}</Route> : null;
+          return match ? <Route key={routePath} /> : null;
         })}
         {!params && NotFoundPage && <NotFoundPage />}
       </Root>
@@ -49,25 +49,17 @@ export default function RouterProvider({ router = [], Root = ({ children }) => <
   );
 }
 
-// // // // // // // // // // // // // // // // // // // //
-
 export function useRouter() {
   return useContext(RouterContext);
 }
-
-// // // // // // // // // // // // // // // // // // // //
 
 const doesRouteMatch = (currentPath, routePath) => {
   if (!currentPath || !routePath || routePath === '*') return false;
   const pathname = currentPath.split('?')[0];
 
   const regexPath = routePath.replace(/:([^/]+)/g, '([^/]+)');
-  const match = new RegExp(`^${regexPath}$`).test(pathname);
-
-  return match;
+  return new RegExp(`^${regexPath}$`).test(pathname);
 };
-
-// // // // // // // // // // // // // // // // // // // //
 
 const getParams = (currentPath, routePath) => {
   if (!currentPath || !routePath || routePath === '*') return null;
@@ -90,5 +82,3 @@ const getParams = (currentPath, routePath) => {
 
   return params;
 };
-
-// // // // // // // // // // // // // // // // // // // //

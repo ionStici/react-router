@@ -1,7 +1,10 @@
-import { useRouter } from '../router/RouterProvider';
+import { useCurrentPath, useNavigate } from '../router/Hooks';
 
 function Error() {
-  const { currentPath, navigate } = useRouter();
+  const navigate = useNavigate();
+
+  const currentPath = useCurrentPath();
+
   const goHome = () => navigate('/');
 
   return (

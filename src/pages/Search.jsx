@@ -21,27 +21,31 @@ function Search() {
     <div>
       <h1>Search</h1>
 
-      <h2>Filter</h2>
-      {filters.map((filter) => (
-        <button
-          key={filter}
-          onClick={() => updateFilter(filter)}
-          className={`${filter === activeFilter ? 'activeBtn' : ''}`}
-        >
-          {filter}
-        </button>
-      ))}
+      <div>
+        <span>Filter</span>
+        {filters.map((filter) => (
+          <button
+            key={filter}
+            onClick={() => updateFilter(filter)}
+            className={`${filter === activeFilter ? 'activeBtn' : ''}`}
+          >
+            {filter}
+          </button>
+        ))}
+      </div>
 
-      <h2>Sort By</h2>
-      {sortBys.map((sortBy) => (
-        <button
-          key={sortBy}
-          onClick={() => updateSortBy(sortBy)}
-          className={`${sortBy === activeSortBy ? 'activeBtn' : ''}`}
-        >
-          {sortBy}
-        </button>
-      ))}
+      <div>
+        <span>Sort By</span>
+        {sortBys.map((sortBy) => (
+          <button
+            key={sortBy}
+            onClick={() => updateSortBy(sortBy)}
+            className={`${sortBy === activeSortBy ? 'activeBtn' : ''}`}
+          >
+            {sortBy}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

@@ -11,7 +11,7 @@ function Dynamic() {
     <div>
       <h1>Dynamic</h1>
       <p>
-        Am I dynamic?
+        <span>Am I dynamic?</span>
         {answer ? <span>{answer}</span> : <button onClick={goYes}>Find out!</button>}
       </p>
     </div>

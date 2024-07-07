@@ -1,6 +1,6 @@
 import NavBar from './NavBar';
 
-function Layout({ children }) {
+function Root({ children }) {
   return (
     <div>
       <header>
@@ -11,4 +11,4 @@ function Layout({ children }) {
   );
 }
 
-export default Layout;
+export default Root;
