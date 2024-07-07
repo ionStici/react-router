@@ -48,8 +48,3 @@ export function useSearchParams() {
 
   return [searchParams, setSearchParams];
 }
-
-export function useLoader() {
-  const { routeData: data, loading } = useRouter();
-  return { data, loading };
-}

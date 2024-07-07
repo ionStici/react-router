@@ -6,33 +6,12 @@ export default function RouterProvider({ router = [], root: Root = ({ children }
   const getCurrentPath = () => window.location.pathname + window.location.search;
   const [currentPath, setCurrentPath] = useState(getCurrentPath);
 
-  const [loading, setLoading] = useState(false);
-  const [routeData, setRouteData] = useState(null);
-
-  const params = router.map(({ path: routePath }) => getParams(currentPath, routePath)).find((a) => a);
-  const NotFoundPage = router.find(({ path }) => path === '*')?.render;
-
-  const navigate = useCallback(
-    async (to) => {
-      const matchedRoute = router.find(({ path: routePath }) => doesRouteMatch(to, routePath));
-
-      if (matchedRoute && matchedRoute.loader) {
-        setLoading(true);
-
-        const data = await matchedRoute.loader(params);
-        setRouteData(data);
-        setLoading(false);
-      } else {
-        setRouteData(null);
-      }
-
-      window.history.pushState({}, '', to);
-      const locationChange = new PopStateEvent('navigate');
-      window.dispatchEvent(locationChange);
-      setCurrentPath(to);
-    },
-    [router]
-  );
+  const navigate = useCallback((to) => {
+    window.history.pushState({}, '', to);
+    const locationChange = new PopStateEvent('navigate');
+    window.dispatchEvent(locationChange);
+    setCurrentPath(to);
+  }, []);
 
   const goBack = useCallback(() => {
     window.history.back();
@@ -43,25 +22,7 @@ export default function RouterProvider({ router = [], root: Root = ({ children }
   }, []);
 
   useEffect(() => {
-    const handleNavigate = async () => {
-      const path = getCurrentPath();
-
-      const matchedRoute = router.find(({ path: routePath }) => doesRouteMatch(path, routePath));
-
-      if (matchedRoute && matchedRoute.loader) {
-        setLoading(true);
-
-        const data = await matchedRoute.loader(params);
-        setRouteData(data);
-        setLoading(false);
-      } else {
-        setRouteData(null);
-      }
-
-      setCurrentPath(path);
-    };
-
-    handleNavigate();
+    const handleNavigate = () => setCurrentPath(getCurrentPath());
 
     window.addEventListener('popstate', handleNavigate);
     window.addEventListener('navigate', handleNavigate);
@@ -70,14 +31,17 @@ export default function RouterProvider({ router = [], root: Root = ({ children }
       window.removeEventListener('popstate', handleNavigate);
       window.removeEventListener('navigate', handleNavigate);
     };
-  }, [router]);
+  }, []);
+
+  const params = router.map(({ path: routePath }) => getParams(currentPath, routePath)).find((a) => a);
+  const NotFoundPage = router.find(({ path }) => path === '*')?.render;
 
   return (
-    <RouterContext.Provider value={{ currentPath, params, navigate, goBack, goForward, routeData, loading }}>
+    <RouterContext.Provider value={{ currentPath, params, navigate, goBack, goForward }}>
       <Root>
         {router.map(({ path: routePath, render: Route }) => {
           const match = doesRouteMatch(currentPath, routePath);
-          return match ? <Route key={routePath} data={routeData} loading={loading} /> : null;
+          return match ? <Route key={routePath} /> : null;
         })}
         {!params && NotFoundPage && <NotFoundPage />}
       </Root>

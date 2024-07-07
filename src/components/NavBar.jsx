@@ -24,6 +24,9 @@ function NavBar() {
         <Link to="/search" className="link" classActive="active">
           Search
         </Link>
+        <Link to="/fetch" className="link" classActive="active">
+          Fetch
+        </Link>
         <Link to="/error" className="link" classActive="active">
           Error
         </Link>
