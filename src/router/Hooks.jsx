@@ -16,15 +16,10 @@ export function useNavigate() {
   return navigate;
 }
 
-export const useGoBack = () => {
-  const { goBack } = useRouter();
-  return goBack;
-};
-
-export const useGoForward = () => {
-  const { goForward } = useRouter();
-  return goForward;
-};
+export function useLoader() {
+  const { routeData: data } = useRouter();
+  return data;
+}
 
 export function useSearchParams() {
   const { currentPath, navigate } = useRouter();
@@ -47,9 +42,4 @@ export function useSearchParams() {
   );
 
   return [searchParams, setSearchParams];
-}
-
-export function useLoader() {
-  const { routeData: data, loading } = useRouter();
-  return { data, loading };
 }

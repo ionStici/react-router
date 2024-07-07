@@ -10,9 +10,7 @@ import Error from './pages/Error';
 // {router.map(({ path, render: Component, guard = true }, i) => {
 // if (typeof guard === 'function' && !guard()) return null;
 
-async function fetchData(params) {
-  params;
-
+async function fetchData() {
   const response = await fetch(`https://jsonplaceholder.typicode.com/todos/1`);
   return await response.json();
 }
@@ -41,7 +39,7 @@ const router = [
   {
     path: '/fetch',
     render: Fetch,
-    loader: (params) => fetchData(params),
+    loader: () => fetchData(),
   },
   {
     path: '*',
