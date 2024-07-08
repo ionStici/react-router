@@ -13,7 +13,7 @@ function Dynamic() {
       <h1>Dynamic</h1>
       <p>
         <span>Am I dynamic?</span>
-        {answer ? <span>{answer}</span> : <button onClick={goYes}>Find out!</button>}
+        {answer ? <span className="yes">{answer}</span> : <button onClick={goYes}>Find out!</button>}
       </p>
     </div>
   );

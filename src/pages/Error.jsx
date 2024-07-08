@@ -12,7 +12,7 @@ function Error() {
     <div className="errorPage">
       <h1>404 Not Found</h1>
       <p>
-        The requested url <span>{currentPath}</span> does not exist.
+        The requested url <span className="path">{currentPath}</span> does not exist.
       </p>
       <p>
         No worries, you can always go

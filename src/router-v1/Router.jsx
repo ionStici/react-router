@@ -4,7 +4,7 @@ const RouterContext = createContext();
 
 // // // // // // // // // // // // // // // // // // // //
 
-export default function RouterProvider({ router = [], Layout = ({ children }) => <>{children}</> }) {
+export default function RouterProvider({ router = [], Root = ({ children }) => <>{children}</> }) {
   const getCurrentPath = () => window.location.pathname;
   const [currentPath, setCurrentPath] = useState(getCurrentPath);
 
@@ -32,22 +32,28 @@ export default function RouterProvider({ router = [], Layout = ({ children }) =>
 
   return (
     <RouterContext.Provider value={{ currentPath, navigate }}>
-      <Layout>
-        {router.map(({ path: routePath, render: Component }, i) => {
-          return currentPath === routePath ? <Component key={i} /> : null;
-        })}
-        {is404 && NotFoundPage && <NotFoundPage />}
-      </Layout>
+      {router.map(({ path: routePath, render: Component }) => {
+        return currentPath === routePath ? (
+          <Root key={routePath}>
+            <Component />
+          </Root>
+        ) : null;
+      })}
+      {is404 && NotFoundPage && <NotFoundPage />}
     </RouterContext.Provider>
   );
 }
 
 // // // // // // // // // // // // // // // // // // // //
 
-export function useRouter() {
-  const context = useContext(RouterContext);
-  if (!context) throw new Error('useRouter must be used within RouterProvider');
-  return context;
+export function useCurrentPath() {
+  const { currentPath } = useRouter();
+  return currentPath;
+}
+
+export function useNavigate() {
+  const { navigate } = useRouter();
+  return navigate;
 }
 
 // // // // // // // // // // // // // // // // // // // //
@@ -55,7 +61,7 @@ export function useRouter() {
 export function Link({ children, to, className, active }) {
   const { currentPath: path, navigate } = useRouter();
 
-  const classes = `${className ? className : ''} ${path === to && active ? active : ''}`;
+  const classes = `${className || ''} ${path === to && classActive ? classActive : ''}`;
 
   const handleClick = useCallback(
     (e) => {
@@ -70,6 +76,12 @@ export function Link({ children, to, className, active }) {
       {children}
     </a>
   );
+}
+
+// // // // // // // // // // // // // // // // // // // //
+
+function useRouter() {
+  return useContext(RouterContext);
 }
 
 // // // // // // // // // // // // // // // // // // // //

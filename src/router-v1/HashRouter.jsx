@@ -4,7 +4,7 @@ const RouterContext = createContext();
 
 // // // // // // // // // // // // // // // // // // // //
 
-export default function RouterProvider({ router = [], useHash = false, Layout = ({ children }) => <>{children}</> }) {
+export default function RouterProvider({ router = [], useHash = false, Root = ({ children }) => <>{children}</> }) {
   const getCurrentPath = () => (useHash ? window.location.hash.slice(1) || '/' : window.location.pathname);
   const [currentPath, setCurrentPath] = useState(getCurrentPath);
 
@@ -39,28 +39,28 @@ export default function RouterProvider({ router = [], useHash = false, Layout = 
 
   return (
     <RouterContext.Provider value={{ currentPath, navigate }}>
-      <Layout>
-        {router.map(({ path: routePath, render: Component }, i) => {
-          return currentPath === routePath ? <Route key={i} Component={Component} /> : null;
-        })}
-        {is404 && NotFoundPage && <NotFoundPage />}
-      </Layout>
+      {router.map(({ path: routePath, render: Component }) => {
+        return currentPath === routePath ? (
+          <Root key={routePath}>
+            <Component />
+          </Root>
+        ) : null;
+      })}
+      {is404 && NotFoundPage && <NotFoundPage />}
     </RouterContext.Provider>
   );
 }
 
 // // // // // // // // // // // // // // // // // // // //
 
-function Route({ Component }) {
-  return <Component />;
+export function useCurrentPath() {
+  const { currentPath } = useRouter();
+  return currentPath;
 }
 
-// // // // // // // // // // // // // // // // // // // //
-
-export function useRouter() {
-  const context = useContext(RouterContext);
-  if (!context) throw new Error('useRouter must be used within RouterProvider');
-  return context;
+export function useNavigate() {
+  const { navigate } = useRouter();
+  return navigate;
 }
 
 // // // // // // // // // // // // // // // // // // // //
@@ -68,7 +68,7 @@ export function useRouter() {
 export function Link({ children, to, className, active }) {
   const { currentPath: path, navigate } = useRouter();
 
-  const classes = `${className ? className : ''} ${path === to && active ? active : ''}`;
+  const classes = `${className || ''} ${path === to && classActive ? classActive : ''}`;
 
   const handleClick = useCallback(
     (e) => {
@@ -83,6 +83,12 @@ export function Link({ children, to, className, active }) {
       {children}
     </a>
   );
+}
+
+// // // // // // // // // // // // // // // // // // // //
+
+function useRouter() {
+  return useContext(RouterContext);
 }
 
 // // // // // // // // // // // // // // // // // // // //

@@ -22,8 +22,8 @@ function Search() {
     <div>
       <h1>Search</h1>
 
-      <div>
-        <span>Filter</span>
+      <p>
+        <span>Filter:</span>
         {filters.map((filter) => (
           <button
             key={filter}
@@ -33,10 +33,10 @@ function Search() {
             {filter}
           </button>
         ))}
-      </div>
+      </p>
 
-      <div>
-        <span>Sort By</span>
+      <p>
+        <span>Sort By:</span>
         {sortBys.map((sortBy) => (
           <button
             key={sortBy}
@@ -46,7 +46,7 @@ function Search() {
             {sortBy}
           </button>
         ))}
-      </div>
+      </p>
     </div>
   );
 }

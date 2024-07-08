@@ -46,13 +46,16 @@ export default function RouterProvider({ router = [], root: Root = ({ children }
 
   return (
     <RouterContext.Provider value={{ currentPath, params, navigate, routeData }}>
-      <Root>
-        {router.map(({ path: routePath, render: Route }) => {
-          const match = doesRouteMatch(currentPath, routePath);
-          return match ? <Route key={routePath} /> : null;
-        })}
-        {!params && NotFoundPage && <NotFoundPage />}
-      </Root>
+      {router.map(({ path: routePath, render: Route }) => {
+        const match = doesRouteMatch(currentPath, routePath);
+
+        return match ? (
+          <Root key={routePath}>
+            <Route />
+          </Root>
+        ) : null;
+      })}
+      {!params && NotFoundPage && <NotFoundPage />}
     </RouterContext.Provider>
   );
 }
