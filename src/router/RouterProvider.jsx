@@ -10,6 +10,7 @@ export default function RouterProvider({ router = [], root: Root = ({ children }
   const fetch = useCallback(
     async (currentPath) => {
       const routeLoader = router.find(({ path: routePath }) => doesRouteMatch(currentPath, routePath))?.loader;
+
       if (routeLoader) {
         const data = await routeLoader();
         setRouteData(data);
@@ -23,16 +24,17 @@ export default function RouterProvider({ router = [], root: Root = ({ children }
   const navigate = useCallback(
     (to) => {
       fetch(to);
+      setCurrentPath(to);
+
       window.history.pushState({}, '', to);
       const locationChange = new PopStateEvent('navigate');
       window.dispatchEvent(locationChange);
-      setCurrentPath(to);
     },
     [fetch]
   );
 
   useEffect(() => {
-    fetch(currentPath);
+    fetch(getCurrentPath());
     const handleNavigate = () => setCurrentPath(getCurrentPath());
 
     window.addEventListener('popstate', handleNavigate);
@@ -47,6 +49,9 @@ export default function RouterProvider({ router = [], root: Root = ({ children }
   const params = router.map(({ path: routePath }) => getParams(currentPath, routePath)).find((a) => a);
   const NotFoundPage = router.find(({ path }) => path === '*')?.render;
 
+  // {router.map(({ path, render: Component, guard = true }, i) => {
+  // if (typeof guard === 'function' && !guard()) return null;
+
   return (
     <RouterContext.Provider value={{ currentPath, params, navigate, routeData }}>
       <Root>
@@ -60,7 +65,78 @@ export default function RouterProvider({ router = [], root: Root = ({ children }
   );
 }
 
-export function useRouter() {
+// // // // // // // // // // // // // // // // // // // //
+
+export function useCurrentPath() {
+  const { currentPath } = useRouter();
+  return currentPath;
+}
+
+export function useParams() {
+  const { params } = useRouter();
+  return params;
+}
+
+export function useNavigate() {
+  const { navigate } = useRouter();
+  return navigate;
+}
+
+export function useLoader() {
+  const { routeData: data } = useRouter();
+  return data;
+}
+
+export function useSearchParams() {
+  const { currentPath, navigate } = useRouter();
+
+  const searchParams = new URLSearchParams(currentPath.split('?')[1] || '');
+
+  const setSearchParams = useCallback(
+    (params) => {
+      const url = new URL(window.location.href);
+      Object.keys(params).forEach((key) => {
+        if (params[key] === null || params[key] === undefined) {
+          url.searchParams.delete(key);
+        } else {
+          url.searchParams.set(key, params[key]);
+        }
+      });
+      navigate(url.pathname + url.search);
+    },
+    [navigate]
+  );
+
+  return [searchParams, setSearchParams];
+}
+
+// // // // // // // // // // // // // // // // // // // //
+
+export function Link({ children, to, className, classActive }) {
+  const { currentPath, navigate } = useRouter();
+
+  const path = currentPath.split('?')[0];
+
+  const classes = `${className || ''} ${path === to && classActive ? classActive : ''}`;
+
+  const handleClick = useCallback(
+    (e) => {
+      e.preventDefault();
+      navigate(to);
+    },
+    [navigate, to]
+  );
+
+  return (
+    <a href={to} onClick={handleClick} className={classes}>
+      {children}
+    </a>
+  );
+}
+
+// // // // // // // // // // // // // // // // // // // //
+
+function useRouter() {
   return useContext(RouterContext);
 }
 
@@ -93,3 +169,5 @@ const getParams = (currentPath, routePath) => {
 
   return params;
 };
+
+// // // // // // // // // // // // // // // // // // // //

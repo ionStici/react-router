@@ -1,8 +1,7 @@
-import { useLoader } from '../router/Hooks';
+import { useLoader } from '../router/RouterProvider';
 
-function Fetch() {
+export default function Fetch() {
   const data = useLoader();
-
   if (!data) return <p>Loading...</p>;
 
   return (
@@ -13,4 +12,7 @@ function Fetch() {
   );
 }
 
-export default Fetch;
+export async function loaderFetch() {
+  const res = await fetch(`https://jsonplaceholder.typicode.com/todos/1`);
+  return await res.json();
+}

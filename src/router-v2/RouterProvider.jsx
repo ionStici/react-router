@@ -13,14 +13,6 @@ export default function RouterProvider({ router = [], root: Root = ({ children }
     setCurrentPath(to);
   }, []);
 
-  const goBack = useCallback(() => {
-    window.history.back();
-  }, []);
-
-  const goForward = useCallback(() => {
-    window.history.forward();
-  }, []);
-
   useEffect(() => {
     const handleNavigate = () => setCurrentPath(getCurrentPath());
 
@@ -37,7 +29,7 @@ export default function RouterProvider({ router = [], root: Root = ({ children }
   const NotFoundPage = router.find(({ path }) => path === '*')?.render;
 
   return (
-    <RouterContext.Provider value={{ currentPath, params, navigate, goBack, goForward }}>
+    <RouterContext.Provider value={{ currentPath, params, navigate }}>
       <Root>
         {router.map(({ path: routePath, render: Route }) => {
           const match = doesRouteMatch(currentPath, routePath);
@@ -48,6 +40,8 @@ export default function RouterProvider({ router = [], root: Root = ({ children }
     </RouterContext.Provider>
   );
 }
+
+// // // // // // // // // // // // // // // // // // // //
 
 export function useRouter() {
   return useContext(RouterContext);

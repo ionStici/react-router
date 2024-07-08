@@ -1,4 +1,5 @@
-import { Link } from '../router/Link';
+// import { Link } from '../router/Link';
+import { Link } from '../router/RouterProvider';
 
 function NavBar() {
   return (

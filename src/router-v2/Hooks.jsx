@@ -16,16 +16,6 @@ export function useNavigate() {
   return navigate;
 }
 
-export const useGoBack = () => {
-  const { goBack } = useRouter();
-  return goBack;
-};
-
-export const useGoForward = () => {
-  const { goForward } = useRouter();
-  return goForward;
-};
-
 export function useSearchParams() {
   const { currentPath, navigate } = useRouter();
 

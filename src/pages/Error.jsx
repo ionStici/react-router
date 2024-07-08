@@ -1,4 +1,5 @@
-import { useCurrentPath, useNavigate } from '../router/Hooks';
+// import { useCurrentPath, useNavigate } from '../router/Hooks';
+import { useCurrentPath, useNavigate } from '../router/RouterProvider';
 
 function Error() {
   const navigate = useNavigate();

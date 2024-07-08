@@ -1,4 +1,5 @@
-import { useSearchParams } from '../router/Hooks';
+// import { useSearchParams } from '../router/Hooks';
+import { useSearchParams } from '../router/RouterProvider';
 
 const filters = ['all', 'active', 'inactive'];
 const sortBys = ['name', 'price', 'age'];

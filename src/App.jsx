@@ -4,16 +4,10 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Dynamic from './pages/Dynamic';
 import Search from './pages/Search';
-import Fetch from './pages/Fetch';
 import Error from './pages/Error';
 
-// {router.map(({ path, render: Component, guard = true }, i) => {
-// if (typeof guard === 'function' && !guard()) return null;
-
-async function fetchData() {
-  const response = await fetch(`https://jsonplaceholder.typicode.com/todos/1`);
-  return await response.json();
-}
+import Fetch from './pages/Fetch';
+import { loaderFetch } from './pages/Fetch';
 
 const router = [
   {
@@ -39,7 +33,7 @@ const router = [
   {
     path: '/fetch',
     render: Fetch,
-    loader: () => fetchData(),
+    loader: loaderFetch,
   },
   {
     path: '*',

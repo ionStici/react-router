@@ -1,4 +1,5 @@
-import { useNavigate, useParams } from '../router/Hooks';
+// import { useNavigate, useParams } from '../router/Hooks';
+import { useNavigate, useParams } from '../router/RouterProvider';
 
 function Dynamic() {
   const navigate = useNavigate();
