@@ -5,9 +5,12 @@ import About from './pages/About';
 import Dynamic from './pages/Dynamic';
 import Search from './pages/Search';
 import Error from './pages/Error';
-
 import Fetch from './pages/Fetch';
 import { loaderFetch } from './pages/Fetch';
+
+export default function App() {
+  return <RouterProvider router={router} root={Root} />;
+}
 
 const router = [
   {
@@ -40,9 +43,3 @@ const router = [
     render: Error,
   },
 ];
-
-function App() {
-  return <RouterProvider router={router} root={Root} />;
-}
-
-export default App;

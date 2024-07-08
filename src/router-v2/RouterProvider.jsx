@@ -43,7 +43,71 @@ export default function RouterProvider({ router = [], root: Root = ({ children }
 
 // // // // // // // // // // // // // // // // // // // //
 
-export function useRouter() {
+export function useCurrentPath() {
+  const { currentPath } = useRouter();
+  return currentPath;
+}
+
+export function useParams() {
+  const { params } = useRouter();
+  return params;
+}
+
+export function useNavigate() {
+  const { navigate } = useRouter();
+  return navigate;
+}
+
+export function useSearchParams() {
+  const { currentPath, navigate } = useRouter();
+
+  const searchParams = new URLSearchParams(currentPath.split('?')[1] || '');
+
+  const setSearchParams = useCallback(
+    (params) => {
+      const url = new URL(window.location.href);
+      Object.keys(params).forEach((key) => {
+        if (params[key] === null || params[key] === undefined) {
+          url.searchParams.delete(key);
+        } else {
+          url.searchParams.set(key, params[key]);
+        }
+      });
+      navigate(url.pathname + url.search);
+    },
+    [navigate]
+  );
+
+  return [searchParams, setSearchParams];
+}
+
+// // // // // // // // // // // // // // // // // // // //
+
+export function Link({ children, to, className, classActive }) {
+  const { currentPath, navigate } = useRouter();
+
+  const path = currentPath.split('?')[0];
+
+  const classes = `${className || ''} ${path === to && classActive ? classActive : ''}`;
+
+  const handleClick = useCallback(
+    (e) => {
+      e.preventDefault();
+      navigate(to);
+    },
+    [navigate, to]
+  );
+
+  return (
+    <a href={to} onClick={handleClick} className={classes}>
+      {children}
+    </a>
+  );
+}
+
+// // // // // // // // // // // // // // // // // // // //
+
+function useRouter() {
   return useContext(RouterContext);
 }
 
@@ -76,3 +140,5 @@ const getParams = (currentPath, routePath) => {
 
   return params;
 };
+
+// // // // // // // // // // // // // // // // // // // //

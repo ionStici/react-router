@@ -2,6 +2,7 @@ import { useLoader } from '../router/RouterProvider';
 
 export default function Fetch() {
   const data = useLoader();
+
   if (!data) return <p>Loading...</p>;
 
   return (
@@ -13,6 +14,6 @@ export default function Fetch() {
 }
 
 export async function loaderFetch() {
-  const res = await fetch(`https://jsonplaceholder.typicode.com/todos/1`);
+  const res = await fetch(`https://jsonplaceholder.typicode.com/todos/2`);
   return await res.json();
 }
