@@ -1,10 +1,9 @@
-// import { useNavigate, useParams } from '../router/Hooks';
-import { useNavigate, useParams } from '../router/RouterProvider';
+import { useNavigate, useParams } from "../router/RouterProvider";
 
 function Dynamic() {
   const navigate = useNavigate();
 
-  const goYes = () => navigate('/dynamic/yes!');
+  const goYes = () => navigate("/dynamic/yes!");
 
   const { answer } = useParams();
 
@@ -13,7 +12,11 @@ function Dynamic() {
       <h1>Dynamic</h1>
       <p>
         <span>Am I dynamic?</span>
-        {answer ? <span className="yes">{answer}</span> : <button onClick={goYes}>Find out!</button>}
+        {answer ? (
+          <span className="yes">{answer}</span>
+        ) : (
+          <button onClick={goYes}>Find out!</button>
+        )}
       </p>
     </div>
   );

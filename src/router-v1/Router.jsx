@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 
 const RouterContext = createContext();
 
@@ -9,8 +9,8 @@ export default function RouterProvider({ router = [], Root = ({ children }) => <
   const [currentPath, setCurrentPath] = useState(getCurrentPath);
 
   const navigate = useCallback((to) => {
-    window.history.pushState({}, '', to);
-    const locationChange = new PopStateEvent('navigate');
+    window.history.pushState({}, "", to);
+    const locationChange = new PopStateEvent("navigate");
     window.dispatchEvent(locationChange);
     setCurrentPath(to);
   }, []);
@@ -18,17 +18,17 @@ export default function RouterProvider({ router = [], Root = ({ children }) => <
   useEffect(() => {
     const handleNavigate = () => setCurrentPath(getCurrentPath());
 
-    window.addEventListener('popstate', handleNavigate);
-    window.addEventListener('navigate', handleNavigate);
+    window.addEventListener("popstate", handleNavigate);
+    window.addEventListener("navigate", handleNavigate);
 
     return () => {
-      window.removeEventListener('popstate', handleNavigate);
-      window.removeEventListener('navigate', handleNavigate);
+      window.removeEventListener("popstate", handleNavigate);
+      window.removeEventListener("navigate", handleNavigate);
     };
   }, []);
 
   const is404 = !router.some(({ path }) => currentPath === path);
-  const NotFoundPage = router.find(({ path }) => path === '*')?.render;
+  const NotFoundPage = router.find(({ path }) => path === "*")?.render;
 
   return (
     <RouterContext.Provider value={{ currentPath, navigate }}>
@@ -61,7 +61,7 @@ export function useNavigate() {
 export function Link({ children, to, className, active }) {
   const { currentPath: path, navigate } = useRouter();
 
-  const classes = `${className || ''} ${path === to && classActive ? classActive : ''}`;
+  const classes = `${className || ""} ${path === to && classActive ? classActive : ""}`;
 
   const handleClick = useCallback(
     (e) => {

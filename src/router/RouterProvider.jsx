@@ -1,15 +1,20 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 
 const RouterContext = createContext();
 
-export default function RouterProvider({ router = [], root: Root = ({ children }) => <>{children}</> }) {
+export default function RouterProvider({
+  router = [],
+  root: Root = ({ children }) => <>{children}</>,
+}) {
   const getCurrentPath = () => window.location.pathname + window.location.search;
   const [currentPath, setCurrentPath] = useState(getCurrentPath);
 
   const [routeData, setRouteData] = useState(null);
   const fetchData = useCallback(
     async (currentPath) => {
-      const routeLoader = router.find(({ path: routePath }) => doesRouteMatch(currentPath, routePath))?.loader;
+      const routeLoader = router.find(({ path: routePath }) =>
+        doesRouteMatch(currentPath, routePath)
+      )?.loader;
       setRouteData(null);
       if (routeLoader) setRouteData(await routeLoader());
     },
@@ -21,8 +26,8 @@ export default function RouterProvider({ router = [], root: Root = ({ children }
       fetchData(to);
       setCurrentPath(to);
 
-      window.history.pushState({}, '', to);
-      const locationChange = new PopStateEvent('navigate');
+      window.history.pushState({}, "", to);
+      const locationChange = new PopStateEvent("navigate");
       window.dispatchEvent(locationChange);
     },
     [fetchData]
@@ -32,17 +37,19 @@ export default function RouterProvider({ router = [], root: Root = ({ children }
     fetchData(getCurrentPath());
     const handleNavigate = () => setCurrentPath(getCurrentPath());
 
-    window.addEventListener('popstate', handleNavigate);
-    window.addEventListener('navigate', handleNavigate);
+    window.addEventListener("popstate", handleNavigate);
+    window.addEventListener("navigate", handleNavigate);
 
     return () => {
-      window.removeEventListener('popstate', handleNavigate);
-      window.removeEventListener('navigate', handleNavigate);
+      window.removeEventListener("popstate", handleNavigate);
+      window.removeEventListener("navigate", handleNavigate);
     };
   }, [fetchData]);
 
-  const params = router.map(({ path: routePath }) => getParams(currentPath, routePath)).find((a) => a);
-  const NotFoundPage = router.find(({ path }) => path === '*')?.render;
+  const params = router
+    .map(({ path: routePath }) => getParams(currentPath, routePath))
+    .find((a) => a);
+  const NotFoundPage = router.find(({ path }) => path === "*")?.render;
 
   return (
     <RouterContext.Provider value={{ currentPath, params, navigate, routeData }}>
@@ -85,7 +92,7 @@ export function useLoader() {
 export function useSearchParams() {
   const { currentPath, navigate } = useRouter();
 
-  const searchParams = new URLSearchParams(currentPath.split('?')[1] || '');
+  const searchParams = new URLSearchParams(currentPath.split("?")[1] || "");
 
   const setSearchParams = useCallback(
     (params) => {
@@ -110,9 +117,9 @@ export function useSearchParams() {
 export function Link({ children, to, className, classActive }) {
   const { currentPath, navigate } = useRouter();
 
-  const path = currentPath.split('?')[0];
+  const path = currentPath.split("?")[0];
 
-  const classes = `${className || ''} ${path === to && classActive ? classActive : ''}`;
+  const classes = `${className || ""} ${path === to && classActive ? classActive : ""}`;
 
   const handleClick = useCallback(
     (e) => {
@@ -136,22 +143,22 @@ function useRouter() {
 }
 
 const doesRouteMatch = (currentPath, routePath) => {
-  if (!currentPath || !routePath || routePath === '*') return false;
-  const pathname = currentPath.split('?')[0];
+  if (!currentPath || !routePath || routePath === "*") return false;
+  const pathname = currentPath.split("?")[0];
 
-  const regexPath = routePath.replace(/:([^/]+)/g, '([^/]+)');
+  const regexPath = routePath.replace(/:([^/]+)/g, "([^/]+)");
   return new RegExp(`^${regexPath}$`).test(pathname);
 };
 
 const getParams = (currentPath, routePath) => {
-  if (!currentPath || !routePath || routePath === '*') return null;
+  if (!currentPath || !routePath || routePath === "*") return null;
 
-  const pathname = currentPath.split('?')[0];
+  const pathname = currentPath.split("?")[0];
 
   const paramNames = [];
   const regexPath = routePath.replace(/:([^/]+)/g, (_, paramName) => {
     paramNames.push(paramName);
-    return '([^/]+)';
+    return "([^/]+)";
   });
 
   const match = new RegExp(`^${regexPath}$`).exec(pathname);

@@ -1,8 +1,7 @@
-// import { useSearchParams } from '../router/Hooks';
-import { useSearchParams } from '../router/RouterProvider';
+import { useSearchParams } from "../router/RouterProvider";
 
-const filters = ['all', 'active', 'inactive'];
-const sortBys = ['name', 'price', 'age'];
+const filters = ["all", "active", "inactive"];
+const sortBys = ["name", "price", "age"];
 
 function Search() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -15,8 +14,8 @@ function Search() {
     setSearchParams({ sortBy: sortByValue });
   };
 
-  const activeFilter = searchParams.get('filter');
-  const activeSortBy = searchParams.get('sortBy');
+  const activeFilter = searchParams.get("filter");
+  const activeSortBy = searchParams.get("sortBy");
 
   return (
     <div>
@@ -28,7 +27,7 @@ function Search() {
           <button
             key={filter}
             onClick={() => updateFilter(filter)}
-            className={`${filter === activeFilter ? 'activeBtn' : ''}`}
+            className={`${filter === activeFilter ? "activeBtn" : ""}`}
           >
             {filter}
           </button>
@@ -41,7 +40,7 @@ function Search() {
           <button
             key={sortBy}
             onClick={() => updateSortBy(sortBy)}
-            className={`${sortBy === activeSortBy ? 'activeBtn' : ''}`}
+            className={`${sortBy === activeSortBy ? "activeBtn" : ""}`}
           >
             {sortBy}
           </button>
